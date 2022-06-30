@@ -1,15 +1,19 @@
 pub mod arguments;
+pub mod database;
 
+use crate::database::Postgres;
 use shared::metrics::LivenessChecking;
-use std::{
-    sync::Arc,
-    time::{Duration, Instant},
-};
+use std::{sync::Arc, time::Duration};
 
-#[derive(prometheus_metric_storage::MetricStorage)]
-struct Metrics {
-    /// Number of seconds program has been running for.
-    seconds_alive: prometheus::IntGauge,
+/// Assumes tracing and metrics registry have already been set up.
+pub async fn main(args: arguments::Arguments) {
+    let serve_metrics = shared::metrics::serve_metrics(Arc::new(Liveness), args.metrics_address);
+    let db = Postgres::new(args.db_url.as_str()).unwrap();
+    let db_metrics = database_metrics(db);
+    tokio::select! {
+        result = serve_metrics => tracing::error!(?result, "serve_metrics exited"),
+        _ = db_metrics => (),
+    };
 }
 
 struct Liveness;
@@ -20,19 +24,11 @@ impl LivenessChecking for Liveness {
     }
 }
 
-/// Assumes tracing and metrics registry have already been set up.
-pub async fn main(args: arguments::Arguments) {
-    let update_metrics = async {
-        let start = Instant::now();
-        let metrics = Metrics::instance(shared::metrics::get_metric_storage_registry()).unwrap();
-        loop {
-            metrics.seconds_alive.set(start.elapsed().as_secs() as i64);
-            tokio::time::sleep(Duration::from_secs(1)).await;
+async fn database_metrics(db: Postgres) -> ! {
+    loop {
+        if let Err(err) = db.update_table_rows_metric().await {
+            tracing::error!(?err, "failed to update table rows metric");
         }
-    };
-    let serve_metrics = shared::metrics::serve_metrics(Arc::new(Liveness), args.metrics_address);
-    tokio::select! {
-        result = serve_metrics => tracing::error!(?result, "serve_metrics exited"),
-        _ = update_metrics => (),
-    };
+        tokio::time::sleep(Duration::from_secs(10)).await;
+    }
 }
