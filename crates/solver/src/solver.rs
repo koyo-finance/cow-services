@@ -15,7 +15,6 @@ use http_solver::{buffers::BufferRetriever, HttpSolver};
 use model::solver_competition::SolverCompetitionId;
 use naive_solver::NaiveSolver;
 use num::BigRational;
-use paraswap_solver::ParaswapSolver;
 use reqwest::{Client, Url};
 use shared::balancer_sor_api::DefaultBalancerSorApi;
 use shared::http_solver::{DefaultHttpSolverApi, SolverConfig};
@@ -36,7 +35,6 @@ pub mod balancer_sor_solver;
 mod baseline_solver;
 pub mod http_solver;
 mod naive_solver;
-mod paraswap_solver;
 mod single_order_solver;
 pub mod uni_v3_router_solver;
 mod zeroex_solver;
@@ -147,7 +145,6 @@ pub enum SolverType {
     Baseline,
     Mip,
     CowDexAg,
-    Paraswap,
     ZeroEx,
     Quasimodo,
     BalancerSor,
@@ -224,9 +221,6 @@ pub fn create(
     token_info_fetcher: Arc<dyn TokenInfoFetching>,
     network_id: String,
     chain_id: u64,
-    paraswap_slippage_bps: u32,
-    disabled_paraswap_dexs: Vec<String>,
-    paraswap_partner: Option<String>,
     client: Client,
     solver_metrics: Arc<dyn SolverMetrics>,
     zeroex_api: Arc<dyn ZeroExApi>,
@@ -320,20 +314,6 @@ pub fn create(
                         solver_metrics.clone(),
                     )))
                 }
-                SolverType::Paraswap => Ok(shared(SingleOrderSolver::new(
-                    ParaswapSolver::new(
-                        account,
-                        web3.clone(),
-                        settlement_contract.clone(),
-                        token_info_fetcher.clone(),
-                        paraswap_slippage_bps,
-                        disabled_paraswap_dexs.clone(),
-                        client.clone(),
-                        paraswap_partner.clone(),
-                        None,
-                    ),
-                    solver_metrics.clone(),
-                ))),
                 SolverType::BalancerSor => Ok(shared(SingleOrderSolver::new(
                     BalancerSorSolver::new(
                         account,

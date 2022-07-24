@@ -94,25 +94,6 @@ pub struct Arguments {
     )]
     pub block_stream_poll_interval_seconds: Duration,
 
-    /// Special partner authentication for Paraswap API (allowing higher rater limits)
-    #[clap(long, env)]
-    pub paraswap_partner: Option<String>,
-
-    /// The list of disabled ParaSwap DEXs. By default, the `ParaSwapPool4`
-    /// DEX (representing a private market maker) is disabled as it increases
-    /// price by 1% if built transactions don't actually get executed.
-    #[clap(long, env, default_value = "ParaSwapPool4", use_value_delimiter = true)]
-    pub disabled_paraswap_dexs: Vec<String>,
-
-    /// Configures the back off strategy for the paraswap API when our requests get rate limited.
-    /// Requests issued while back off is active get dropped entirely.
-    /// Needs to be passed as "<back_off_growth_factor>,<min_back_off>,<max_back_off>".
-    /// back_off_growth_factor: f64 >= 1.0
-    /// min_back_off: f64 in seconds
-    /// max_back_off: f64 in seconds
-    #[clap(long, env, verbatim_doc_comment)]
-    pub paraswap_rate_limiter: Option<RateLimitingStrategy>,
-
     #[clap(long, env)]
     pub zeroex_url: Option<String>,
 
@@ -205,21 +186,6 @@ impl Display for Arguments {
             "block_stream_poll_interval_seconds: {:?}",
             self.block_stream_poll_interval_seconds
         )?;
-        writeln!(
-            f,
-            "paraswap_partner: {}",
-            self.paraswap_partner
-                .as_ref()
-                .map(|_| "SECRET")
-                .unwrap_or("None")
-        )?;
-        writeln!(
-            f,
-            "disabled_paraswap_dexs: {:?}",
-            self.disabled_paraswap_dexs
-        )?;
-        write!(f, "paraswap_rate_limiter: ")?;
-        display_option(&self.paraswap_rate_limiter, f)?;
         writeln!(f)?;
         writeln!(
             f,

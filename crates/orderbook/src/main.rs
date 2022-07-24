@@ -41,7 +41,6 @@ use shared::{
     maintenance::ServiceMaintenance,
     metrics::{serve_metrics, DEFAULT_METRICS_PORT},
     network::network_name,
-    paraswap_api::DefaultParaswapApi,
     price_estimation::{
         balancer_sor::BalancerSor,
         baseline::BaselinePriceEstimator,
@@ -50,7 +49,6 @@ use shared::{
         instrumented::InstrumentedPriceEstimator,
         native::NativePriceEstimator,
         native_price_cache::CachingNativePriceEstimator,
-        paraswap::ParaswapPriceEstimator,
         sanitized::SanitizedPriceEstimator,
         zeroex::ZeroExPriceEstimator,
         PriceEstimating, PriceEstimatorType,
@@ -370,18 +368,6 @@ async fn main() {
                     base_tokens.clone(),
                     native_token.address(),
                     native_token_price_estimation_amount,
-                    rate_limiter(estimator.name()),
-                )),
-                PriceEstimatorType::Paraswap => Box::new(ParaswapPriceEstimator::new(
-                    Arc::new(DefaultParaswapApi {
-                        client: client.clone(),
-                        partner: args.shared.paraswap_partner.clone().unwrap_or_default(),
-                        rate_limiter: args.shared.paraswap_rate_limiter.clone().map(|strategy| {
-                            RateLimiter::from_strategy(strategy, "paraswap_api".into())
-                        }),
-                    }),
-                    token_info_fetcher.clone(),
-                    args.shared.disabled_paraswap_dexs.clone(),
                     rate_limiter(estimator.name()),
                 )),
                 PriceEstimatorType::ZeroEx => Box::new(ZeroExPriceEstimator::new(

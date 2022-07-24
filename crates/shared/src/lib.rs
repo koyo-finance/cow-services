@@ -16,7 +16,6 @@ pub mod http_solver;
 pub mod maintenance;
 pub mod metrics;
 pub mod network;
-pub mod paraswap_api;
 pub mod price_estimation;
 pub mod rate_limiter;
 pub mod recent_block_cache;

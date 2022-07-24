@@ -133,10 +133,6 @@ pub struct Arguments {
     )]
     pub gas_price_cap: f64,
 
-    /// The slippage tolerance we apply to the price quoted by Paraswap
-    #[clap(long, env, default_value = "10")]
-    pub paraswap_slippage_bps: u32,
-
     /// The slippage tolerance we apply to the price quoted by zeroEx
     #[clap(long, env, default_value = "10")]
     pub zeroex_slippage_bps: u32,
@@ -295,7 +291,6 @@ impl std::fmt::Display for Arguments {
             self.market_makable_token_list
         )?;
         writeln!(f, "gas_price_cap: {}", self.gas_price_cap)?;
-        writeln!(f, "paraswap_slippage_bps: {}", self.paraswap_slippage_bps)?;
         writeln!(f, "zeroex_slippage_bps: {}", self.zeroex_slippage_bps)?;
         writeln!(f, "transaction_strategy: {:?}", self.transaction_strategy)?;
         writeln!(

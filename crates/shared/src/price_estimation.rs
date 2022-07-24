@@ -6,7 +6,6 @@ pub mod http;
 pub mod instrumented;
 pub mod native;
 pub mod native_price_cache;
-pub mod paraswap;
 pub mod sanitized;
 pub mod zeroex;
 
@@ -33,7 +32,6 @@ use thiserror::Error;
 #[clap(rename_all = "verbatim")]
 pub enum PriceEstimatorType {
     Baseline,
-    Paraswap,
     ZeroEx,
     Quasimodo,
     Yearn,
