@@ -1,7 +1,6 @@
 //! Top-level module organizing all baseline liquidity sources.
 
 pub mod balancer_v2;
-pub mod swapr;
 pub mod uniswap_v2;
 
 use self::uniswap_v2::{
@@ -21,7 +20,6 @@ use std::{
 pub enum BaselineSource {
     UniswapV2,
     BalancerV2,
-    Swapr,
 }
 
 pub fn defaults_for_chain(chain_id: u64) -> Result<Vec<BaselineSource>> {
@@ -36,7 +34,6 @@ pub fn defaults_for_chain(chain_id: u64) -> Result<Vec<BaselineSource>> {
         ],
         5 => vec![BaselineSource::UniswapV2],
         100 => vec![
-            BaselineSource::Swapr,
         ],
         _ => bail!("unsupported chain {:#x}", chain_id),
     })
@@ -52,7 +49,6 @@ pub async fn uniswap_like_liquidity_sources(
     for source in sources {
         let liquidity_source = match source {
             BaselineSource::UniswapV2 => uniswap_v2::get_liquidity_source(web3).await?,
-            BaselineSource::Swapr => swapr::get_liquidity_source(web3).await?,
             BaselineSource::BalancerV2 => continue,
         };
 

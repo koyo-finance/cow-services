@@ -409,10 +409,6 @@ async fn build_amm_artifacts(
                 .await
                 .expect("couldn't load deployed UniswapV2 router")
                 .address(),
-            BaselineSource::Swapr => contracts::SwaprRouter::deployed(&web3)
-                .await
-                .expect("couldn't load deployed Swapr router")
-                .address(),
             BaselineSource::BalancerV2 => continue,
         };
         res.push(UniswapLikeLiquidity::new(
