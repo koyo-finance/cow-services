@@ -35,8 +35,6 @@ include!(concat!(
     env!("OUT_DIR"),
     "/BalancerV2WeightedPoolFactory.rs"
 ));
-include!(concat!(env!("OUT_DIR"), "/BaoswapFactory.rs"));
-include!(concat!(env!("OUT_DIR"), "/BaoswapRouter.rs"));
 include!(concat!(env!("OUT_DIR"), "/ERC20.rs"));
 include!(concat!(env!("OUT_DIR"), "/ERC20Mintable.rs"));
 include!(concat!(env!("OUT_DIR"), "/GPv2AllowListAuthentication.rs"));

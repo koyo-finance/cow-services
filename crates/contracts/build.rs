@@ -211,12 +211,6 @@ fn main() {
         )
     });
     generate_contract("BalancerV2LiquidityBootstrappingPool");
-    generate_contract_with_config("BaoswapFactory", |builder| {
-        builder.add_network_str("100", "0x45DE240fbE2077dd3e711299538A09854FAE9c9b")
-    });
-    generate_contract_with_config("BaoswapRouter", |builder| {
-        builder.add_network_str("100", "0x6093AeBAC87d62b1A5a4cEec91204e35020E38bE")
-    });
     generate_contract("ERC20");
     generate_contract("ERC20Mintable");
     generate_contract("GPv2AllowListAuthentication");

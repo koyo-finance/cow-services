@@ -437,10 +437,6 @@ async fn build_amm_artifacts(
                 .await
                 .expect("couldn't load deployed UniswapV2 router")
                 .address(),
-            BaselineSource::Baoswap => contracts::BaoswapRouter::deployed(&web3)
-                .await
-                .expect("couldn't load deployed Baoswap router")
-                .address(),
             BaselineSource::Swapr => contracts::SwaprRouter::deployed(&web3)
                 .await
                 .expect("couldn't load deployed Swapr router")
