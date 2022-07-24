@@ -50,8 +50,6 @@ include!(concat!(env!("OUT_DIR"), "/GnosisSafeProxy.rs"));
 include!(concat!(env!("OUT_DIR"), "/IUniswapLikePair.rs"));
 include!(concat!(env!("OUT_DIR"), "/IUniswapLikeRouter.rs"));
 include!(concat!(env!("OUT_DIR"), "/ERC1271SignatureValidator.rs"));
-include!(concat!(env!("OUT_DIR"), "/SushiSwapFactory.rs"));
-include!(concat!(env!("OUT_DIR"), "/SushiSwapRouter.rs"));
 include!(concat!(env!("OUT_DIR"), "/SwaprFactory.rs"));
 include!(concat!(env!("OUT_DIR"), "/SwaprRouter.rs"));
 include!(concat!(env!("OUT_DIR"), "/ISwaprPair.rs"));
@@ -125,8 +123,6 @@ mod tests {
 
         for network in &[1, 4, 100] {
             assert_has_deployment_address!(GPv2Settlement for *network);
-            assert_has_deployment_address!(SushiSwapFactory for *network);
-            assert_has_deployment_address!(SushiSwapRouter for *network);
             assert_has_deployment_address!(WETH9 for *network);
         }
         for network in &[1, 4] {

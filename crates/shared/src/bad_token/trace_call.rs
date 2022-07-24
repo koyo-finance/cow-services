@@ -311,7 +311,7 @@ mod tests {
         bad_token::token_owner_finder::{
             FeeValues, UniswapLikePairProviderFinder,
         },
-        sources::{sushiswap, uniswap_v2},
+        sources::{uniswap_v2},
         transport::create_env_test_transport,
     };
     use hex_literal::hex;
@@ -583,14 +583,10 @@ mod tests {
             inner: uniswap_v2::get_liquidity_source(&web3).await.unwrap().0,
             base_tokens: base_tokens.to_vec(),
         });
-        let sushiswap = Arc::new(UniswapLikePairProviderFinder {
-            inner: sushiswap::get_liquidity_source(&web3).await.unwrap().0,
-            base_tokens: base_tokens.to_vec(),
-        });
         let token_cache = TraceCallDetector {
             web3,
             settlement_contract: settlement.address(),
-            finders: vec![uniswap, sushiswap],
+            finders: vec![uniswap],
         };
 
         println!("testing good tokens");

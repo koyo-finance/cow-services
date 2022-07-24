@@ -265,20 +265,6 @@ fn main() {
     generate_contract("IUniswapLikePair");
     // EIP-1271 contract - SignatureValidator
     generate_contract("ERC1271SignatureValidator");
-    generate_contract_with_config("SushiSwapFactory", |builder| {
-        builder
-            .add_network_str("1", "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac")
-            .add_network_str("4", "0xc35DADB65012eC5796536bD9864eD8773aBc74C4")
-            .add_network_str("5", "0xc35DADB65012eC5796536bD9864eD8773aBc74C4")
-            .add_network_str("100", "0xc35DADB65012eC5796536bD9864eD8773aBc74C4")
-    });
-    generate_contract_with_config("SushiSwapRouter", |builder| {
-        builder
-            .add_network_str("1", "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F")
-            .add_network_str("4", "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506")
-            .add_network_str("5", "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506")
-            .add_network_str("100", "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506")
-    });
     generate_contract_with_config("SwaprFactory", |builder| {
         builder.add_network_str("100", "0x5D48C95AdfFD4B40c1AAADc4e08fc44117E02179")
     });

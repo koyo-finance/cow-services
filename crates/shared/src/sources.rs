@@ -2,7 +2,6 @@
 
 pub mod balancer_v2;
 pub mod baoswap;
-pub mod sushiswap;
 pub mod swapr;
 pub mod uniswap_v2;
 
@@ -22,7 +21,6 @@ use std::{
 #[clap(rename_all = "verbatim")]
 pub enum BaselineSource {
     UniswapV2,
-    SushiSwap,
     BalancerV2,
     Baoswap,
     Swapr,
@@ -33,18 +31,15 @@ pub fn defaults_for_chain(chain_id: u64) -> Result<Vec<BaselineSource>> {
     Ok(match chain_id {
         1 => vec![
             BaselineSource::UniswapV2,
-            BaselineSource::SushiSwap,
             BaselineSource::BalancerV2,
             BaselineSource::ZeroEx,
         ],
         4 => vec![
             BaselineSource::UniswapV2,
-            BaselineSource::SushiSwap,
             BaselineSource::BalancerV2,
         ],
-        5 => vec![BaselineSource::UniswapV2, BaselineSource::SushiSwap],
+        5 => vec![BaselineSource::UniswapV2],
         100 => vec![
-            BaselineSource::SushiSwap,
             BaselineSource::Baoswap,
             BaselineSource::Swapr,
         ],
@@ -62,7 +57,6 @@ pub async fn uniswap_like_liquidity_sources(
     for source in sources {
         let liquidity_source = match source {
             BaselineSource::UniswapV2 => uniswap_v2::get_liquidity_source(web3).await?,
-            BaselineSource::SushiSwap => sushiswap::get_liquidity_source(web3).await?,
             BaselineSource::Baoswap => baoswap::get_liquidity_source(web3).await?,
             BaselineSource::Swapr => swapr::get_liquidity_source(web3).await?,
             BaselineSource::BalancerV2 => continue,
