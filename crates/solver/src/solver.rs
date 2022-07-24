@@ -36,7 +36,6 @@ mod baseline_solver;
 pub mod http_solver;
 mod naive_solver;
 mod single_order_solver;
-pub mod uni_v3_router_solver;
 mod zeroex_solver;
 
 /// Interface that all solvers must implement.

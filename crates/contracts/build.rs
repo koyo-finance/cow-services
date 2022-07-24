@@ -311,12 +311,6 @@ fn main() {
             .add_network_str("5", "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6")
             .add_network_str("100", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d")
     });
-    generate_contract_with_config("IUniswapV3Factory", |builder| {
-        builder
-            .add_network_str("1", "0x1F98431c8aD98523631AE4a59f267346ea31F984")
-            .add_network_str("4", "0x1F98431c8aD98523631AE4a59f267346ea31F984")
-            .add_network_str("5", "0x1F98431c8aD98523631AE4a59f267346ea31F984")
-    });
     generate_contract_with_config("IZeroEx", |builder| {
         builder
             .add_network_str("1", "0xdef1c0ded9bec7f1a1670819833240f027b25eff")

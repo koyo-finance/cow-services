@@ -1,6 +1,6 @@
 use clap::{ArgEnum, Parser};
 use contracts::{
-    BalancerV2Vault, CowProtocolToken, CowProtocolVirtualToken, GPv2Settlement, IUniswapV3Factory,
+    BalancerV2Vault, CowProtocolToken, CowProtocolVirtualToken, GPv2Settlement,
     WETH9,
 };
 use ethcontract::errors::DeployError;
@@ -30,7 +30,7 @@ use shared::{
         list_based::{ListBasedDetector, UnknownTokenStrategy},
         token_owner_finder::{
             blockscout::BlockscoutTokenOwnerFinder, BalancerVaultFinder, TokenOwnerFinding,
-            UniswapLikePairProviderFinder, UniswapV3Finder,
+            UniswapLikePairProviderFinder,
         },
         trace_call::TraceCallDetector,
     },
@@ -216,22 +216,6 @@ async fn main() {
         .collect();
     if let Some(contract) = &vault {
         finders.push(Arc::new(BalancerVaultFinder(contract.clone())));
-    }
-    let uniswapv3_factory = match IUniswapV3Factory::deployed(&web3).await {
-        Err(DeployError::NotFound(_)) => None,
-        other => Some(other.unwrap()),
-    };
-    if let Some(contract) = uniswapv3_factory {
-        finders.push(Arc::new(
-            UniswapV3Finder::new(
-                contract,
-                base_tokens.tokens().iter().copied().collect(),
-                current_block,
-                args.token_detector_fee_values,
-            )
-            .await
-            .expect("create uniswapv3 finder"),
-        ));
     }
     if args.enable_blockscout {
         if let Ok(finder) = BlockscoutTokenOwnerFinder::try_with_network(client.clone(), chain_id) {
