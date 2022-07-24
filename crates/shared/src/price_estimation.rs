@@ -6,7 +6,6 @@ pub mod http;
 pub mod instrumented;
 pub mod native;
 pub mod native_price_cache;
-pub mod oneinch;
 pub mod paraswap;
 pub mod sanitized;
 pub mod zeroex;
@@ -37,7 +36,6 @@ pub enum PriceEstimatorType {
     Paraswap,
     ZeroEx,
     Quasimodo,
-    OneInch,
     Yearn,
     BalancerSor,
 }

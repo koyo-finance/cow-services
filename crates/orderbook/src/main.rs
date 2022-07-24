@@ -41,7 +41,6 @@ use shared::{
     maintenance::ServiceMaintenance,
     metrics::{serve_metrics, DEFAULT_METRICS_PORT},
     network::network_name,
-    oneinch_api::OneInchClientImpl,
     paraswap_api::DefaultParaswapApi,
     price_estimation::{
         balancer_sor::BalancerSor,
@@ -51,7 +50,6 @@ use shared::{
         instrumented::InstrumentedPriceEstimator,
         native::NativePriceEstimator,
         native_price_cache::CachingNativePriceEstimator,
-        oneinch::OneInchPriceEstimator,
         paraswap::ParaswapPriceEstimator,
         sanitized::SanitizedPriceEstimator,
         zeroex::ZeroExPriceEstimator,
@@ -325,9 +323,6 @@ async fn main() {
         )
         .unwrap(),
     );
-    let one_inch_api =
-        OneInchClientImpl::new(args.shared.one_inch_url.clone(), client.clone(), chain_id)
-            .map(Arc::new);
     let instrumented = |inner: Box<dyn PriceEstimating>, name: String| {
         InstrumentedPriceEstimator::new(inner, name, metrics.clone())
     };
@@ -400,11 +395,6 @@ async fn main() {
                         "quasimodo solver url is required when using quasimodo price estimation",
                     ),
                 ),
-                PriceEstimatorType::OneInch => Box::new(OneInchPriceEstimator::new(
-                    one_inch_api.as_ref().unwrap().clone(),
-                    args.shared.disabled_one_inch_protocols.clone(),
-                    rate_limiter(estimator.name()),
-                )),
                 PriceEstimatorType::Yearn => create_http_estimator(
                     "yearn-price-estimator".to_string(),
                     args.yearn_solver_url

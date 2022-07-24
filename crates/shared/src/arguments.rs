@@ -133,16 +133,6 @@ pub struct Arguments {
     #[clap(long, env, arg_enum, ignore_case = true, use_value_delimiter = true)]
     pub balancer_factories: Option<Vec<BalancerFactoryKind>>,
 
-    /// The list of disabled 1Inch protocols. By default, the `PMM1` protocol
-    /// (representing a private market maker) is disabled as it seems to
-    /// produce invalid swaps.
-    #[clap(long, env, default_value = "PMM1", use_value_delimiter = true)]
-    pub disabled_one_inch_protocols: Vec<String>,
-
-    /// The 1Inch REST API URL to use.
-    #[structopt(long, env, default_value = "https://api.1inch.exchange/")]
-    pub one_inch_url: Url,
-
     /// The list of disabled 0x sources.
     #[clap(long, env, use_value_delimiter = true)]
     pub disabled_zeroex_sources: Vec<String>,
@@ -255,12 +245,6 @@ impl Display for Arguments {
             self.mip_uses_internal_buffers
         )?;
         writeln!(f, "balancer_factories: {:?}", self.balancer_factories)?;
-        writeln!(
-            f,
-            "disabled_one_inch_protocols: {:?}",
-            self.disabled_one_inch_protocols
-        )?;
-        writeln!(f, "one_inch_url: {}", self.one_inch_url)?;
         writeln!(
             f,
             "disabled_zeroex_sources: {:?}",

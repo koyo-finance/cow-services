@@ -226,7 +226,6 @@ async fn main() {
         token_info_fetcher,
         network_name.to_string(),
         chain_id,
-        args.shared.disabled_one_inch_protocols,
         args.paraswap_slippage_bps,
         args.shared.disabled_paraswap_dexs,
         args.shared.paraswap_partner,
@@ -235,12 +234,9 @@ async fn main() {
         zeroex_api.clone(),
         args.zeroex_slippage_bps,
         args.shared.disabled_zeroex_sources,
-        args.oneinch_slippage_bps,
         args.shared.quasimodo_uses_internal_buffers,
         args.shared.mip_uses_internal_buffers,
-        args.shared.one_inch_url,
         args.external_solvers.unwrap_or_default(),
-        U256::from_f64_lossy(args.oneinch_max_slippage_in_eth * 1e18),
     )
     .expect("failure creating solvers");
 

@@ -15,7 +15,6 @@ use http_solver::{buffers::BufferRetriever, HttpSolver};
 use model::solver_competition::SolverCompetitionId;
 use naive_solver::NaiveSolver;
 use num::BigRational;
-use oneinch_solver::OneInchSolver;
 use paraswap_solver::ParaswapSolver;
 use reqwest::{Client, Url};
 use shared::balancer_sor_api::DefaultBalancerSorApi;
@@ -37,7 +36,6 @@ pub mod balancer_sor_solver;
 mod baseline_solver;
 pub mod http_solver;
 mod naive_solver;
-mod oneinch_solver;
 mod paraswap_solver;
 mod single_order_solver;
 pub mod uni_v3_router_solver;
@@ -149,7 +147,6 @@ pub enum SolverType {
     Baseline,
     Mip,
     CowDexAg,
-    OneInch,
     Paraswap,
     ZeroEx,
     Quasimodo,
@@ -227,7 +224,6 @@ pub fn create(
     token_info_fetcher: Arc<dyn TokenInfoFetching>,
     network_id: String,
     chain_id: u64,
-    disabled_one_inch_protocols: Vec<String>,
     paraswap_slippage_bps: u32,
     disabled_paraswap_dexs: Vec<String>,
     paraswap_partner: Option<String>,
@@ -236,12 +232,9 @@ pub fn create(
     zeroex_api: Arc<dyn ZeroExApi>,
     zeroex_slippage_bps: u32,
     disabled_zeroex_sources: Vec<String>,
-    oneinch_slippage_bps: u32,
     quasimodo_uses_internal_buffers: bool,
     mip_uses_internal_buffers: bool,
-    one_inch_url: Url,
     external_solvers: Vec<ExternalSolverArg>,
-    oneinch_max_slippage_in_wei: U256,
 ) -> Result<Solvers> {
     // Tiny helper function to help out with type inference. Otherwise, all
     // `Box::new(...)` expressions would have to be cast `as Box<dyn Solver>`.
@@ -310,20 +303,6 @@ pub fn create(
                         use_internal_buffers: Some(quasimodo_uses_internal_buffers),
                         ..Default::default()
                     },
-                ))),
-                SolverType::OneInch => Ok(shared(SingleOrderSolver::new(
-                    OneInchSolver::with_disabled_protocols(
-                        account,
-                        web3.clone(),
-                        settlement_contract.clone(),
-                        chain_id,
-                        disabled_one_inch_protocols.clone(),
-                        client.clone(),
-                        one_inch_url.clone(),
-                        oneinch_slippage_bps,
-                        oneinch_max_slippage_in_wei,
-                    )?,
-                    solver_metrics.clone(),
                 ))),
                 SolverType::ZeroEx => {
                     let zeroex_solver = ZeroExSolver::new(

@@ -141,14 +141,6 @@ pub struct Arguments {
     #[clap(long, env, default_value = "10")]
     pub zeroex_slippage_bps: u32,
 
-    /// The default slippage tolerance we apply to the price quoted by OneInchSolver
-    #[clap(long, env, default_value = "10")]
-    pub oneinch_slippage_bps: u32,
-
-    /// The maximum slippage in ETH we are willing to incur per trade on 1Inch
-    #[clap(long, env, default_value = "0.07")]
-    pub oneinch_max_slippage_in_eth: f64,
-
     /// How to to submit settlement transactions.
     /// Expected to contain either:
     /// 1. One value equal to TransactionStrategyArg::DryRun or
@@ -305,7 +297,6 @@ impl std::fmt::Display for Arguments {
         writeln!(f, "gas_price_cap: {}", self.gas_price_cap)?;
         writeln!(f, "paraswap_slippage_bps: {}", self.paraswap_slippage_bps)?;
         writeln!(f, "zeroex_slippage_bps: {}", self.zeroex_slippage_bps)?;
-        writeln!(f, "oneinch_slippage_bps: {}", self.oneinch_slippage_bps)?;
         writeln!(f, "transaction_strategy: {:?}", self.transaction_strategy)?;
         writeln!(
             f,
