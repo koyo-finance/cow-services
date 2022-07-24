@@ -32,8 +32,7 @@ use crate::{
 use anyhow::Result;
 use clap::ArgEnum;
 use contracts::{
-    BalancerV2LiquidityBootstrappingPoolFactory,
-    BalancerV2NoProtocolFeeLiquidityBootstrappingPoolFactory, BalancerV2StablePoolFactory,
+    BalancerV2StablePoolFactory,
     BalancerV2StablePoolFactoryV2, BalancerV2Vault, BalancerV2WeightedPool2TokensFactory,
     BalancerV2WeightedPoolFactory,
 };
@@ -152,8 +151,6 @@ pub enum BalancerFactoryKind {
     Weighted2Token,
     Stable,
     StableV2,
-    LiquidityBootstrapping,
-    NoProtocolFeeLiquidityBootstrapping,
 }
 
 /// All balancer related contracts that we expect to exist.
@@ -163,8 +160,6 @@ pub struct BalancerContracts {
     pub weighted_2_token: BalancerV2WeightedPool2TokensFactory,
     pub stable: BalancerV2StablePoolFactory,
     pub stable_v2: BalancerV2StablePoolFactoryV2,
-    pub liquidity_bootstrapping: BalancerV2LiquidityBootstrappingPoolFactory,
-    pub no_fee_liquidity_bootstrapping: BalancerV2NoProtocolFeeLiquidityBootstrappingPoolFactory,
 }
 
 impl BalancerContracts {
@@ -175,10 +170,6 @@ impl BalancerContracts {
             weighted_2_token: BalancerV2WeightedPool2TokensFactory::deployed(web3).await?,
             stable: BalancerV2StablePoolFactory::deployed(web3).await?,
             stable_v2: BalancerV2StablePoolFactoryV2::deployed(web3).await?,
-            liquidity_bootstrapping: BalancerV2LiquidityBootstrappingPoolFactory::deployed(web3)
-                .await?,
-            no_fee_liquidity_bootstrapping:
-                BalancerV2NoProtocolFeeLiquidityBootstrappingPoolFactory::deployed(web3).await?,
         })
     }
 }
@@ -299,12 +290,6 @@ async fn create_aggregate_pool_fetcher(
             }
             BalancerFactoryKind::Stable => registry!(&contracts.stable),
             BalancerFactoryKind::StableV2 => registry!(&contracts.stable_v2),
-            BalancerFactoryKind::LiquidityBootstrapping => {
-                registry!(&contracts.liquidity_bootstrapping)
-            }
-            BalancerFactoryKind::NoProtocolFeeLiquidityBootstrapping => {
-                registry!(&contracts.no_fee_liquidity_bootstrapping)
-            }
         };
         fetchers.push(registry);
     }

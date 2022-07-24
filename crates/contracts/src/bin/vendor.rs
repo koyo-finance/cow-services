@@ -58,7 +58,7 @@ fn run() -> Result<()> {
         .npm(
             "GPv2AllowListAuthentication",
             // We use `_Implementation` because the use of a proxy contract makes
-            // deploying  for the e2e tests more cumbersome.
+            // deploying for the e2e tests more cumbersome.
             "@cowprotocol/contracts@1.1.2/\
              deployments/mainnet/GPv2AllowListAuthentication_Implementation.json",
         )?

@@ -150,53 +150,6 @@ fn main() {
         // Not deployed on Rinkeby
         // Not deployed on Görli
     });
-    generate_contract_with_config("BalancerV2LiquidityBootstrappingPoolFactory", |builder| {
-        builder
-            .contract_mod_override("balancer_v2_liquidity_bootstrapping_pool_factory")
-            .add_network(
-                "1",
-                Network {
-                    address: addr("0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE"),
-                    // <https://etherscan.io/tx/0x665ac1c7c5290d70154d9dfc1d91dc2562b143aaa9e8a77aa13e7053e4fe9b7c>
-                    deployment_information: Some(DeploymentInformation::BlockNumber(12871780)),
-                },
-            )
-            .add_network(
-                "4",
-                Network {
-                    address: addr("0xdcdbf71A870cc60C6F9B621E28a7D3Ffd6Dd4965"),
-                    // <https://rinkeby.etherscan.io/tx/0x4344f7e7404c24f03c1fb1b421294ce4ced8f44092424344a49602937cf9907e>
-                    deployment_information: Some(DeploymentInformation::BlockNumber(8976588)),
-                },
-            )
-        // Not deployed on Görli
-    });
-    generate_contract_with_config(
-        "BalancerV2NoProtocolFeeLiquidityBootstrappingPoolFactory",
-        |builder| {
-            builder
-                .contract_mod_override(
-                    "balancer_v2_no_protocol_fee_liquidity_bootstrapping_pool_factory",
-                )
-                .add_network(
-                    "1",
-                    Network {
-                        address: addr("0x0F3e0c4218b7b0108a3643cFe9D3ec0d4F57c54e"),
-                        // <https://etherscan.io/tx/0x298381e567ff6643d9b32e8e7e9ff0f04a80929dce3e004f6fa1a0104b2b69c3>
-                        deployment_information: Some(DeploymentInformation::BlockNumber(13730248)),
-                    },
-                )
-                .add_network(
-                    "4",
-                    Network {
-                        address: addr("0x41B953164995c11C81DA73D212ED8Af25741b7Ac"),
-                        // <https://rinkeby.etherscan.io/tx/0x69211f2b510d5d18b49e226822f4b920979b75ba87f5041034dc53d38a79a7c3>
-                        deployment_information: Some(DeploymentInformation::BlockNumber(9746969)),
-                    },
-                )
-            // Not deployed on Görli
-        },
-    );
     generate_contract("BalancerV2WeightedPool");
     generate_contract_with_config("BalancerV2StablePool", |builder| {
         builder.add_method_alias(
@@ -210,7 +163,6 @@ fn main() {
             "on_swap_with_balances"
         )
     });
-    generate_contract("BalancerV2LiquidityBootstrappingPool");
     generate_contract("ERC20");
     generate_contract("ERC20Mintable");
     generate_contract("GPv2AllowListAuthentication");
