@@ -441,10 +441,6 @@ async fn build_amm_artifacts(
                 .await
                 .expect("couldn't load deployed SushiSwap router")
                 .address(),
-            BaselineSource::Honeyswap => contracts::HoneyswapRouter::deployed(&web3)
-                .await
-                .expect("couldn't load deployed Honeyswap router")
-                .address(),
             BaselineSource::Baoswap => contracts::BaoswapRouter::deployed(&web3)
                 .await
                 .expect("couldn't load deployed Baoswap router")

@@ -261,12 +261,6 @@ fn main() {
         builder.add_method_alias("isValidSignature(bytes,bytes)", "is_valid_signature_legacy")
     });
     generate_contract("GnosisSafeProxy");
-    generate_contract_with_config("HoneyswapFactory", |builder| {
-        builder.add_network_str("100", "0xA818b4F111Ccac7AA31D0BCc0806d64F2E0737D7")
-    });
-    generate_contract_with_config("HoneyswapRouter", |builder| {
-        builder.add_network_str("100", "0x1C232F01118CB8B424793ae03F870aa7D0ac7f77")
-    });
     generate_contract("IUniswapLikeRouter");
     generate_contract("IUniswapLikePair");
     // EIP-1271 contract - SignatureValidator
