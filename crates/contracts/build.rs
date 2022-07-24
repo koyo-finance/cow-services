@@ -367,7 +367,9 @@ fn generate_contract_with_config(
     let contract = TruffleLoader::new()
         .name(name)
         .load_contract_from_file(&path)
-        .unwrap();
+        .unwrap_or_else(|_| {
+            panic!("contract file {:?} not found", name)
+        });
     let dest = env::var("OUT_DIR").unwrap();
 
     println!("cargo:rerun-if-changed={}", path.display());
