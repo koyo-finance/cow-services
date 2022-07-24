@@ -94,16 +94,6 @@ fn run() -> Result<()> {
     vendor
         .abi_only()
         .github(
-            "BalancerV2LiquidityBootstrappingPool",
-            "balancer-labs/balancer-v2-monorepo/7a643349a5ef4511234b19a33e3f18d30770cb66/\
-             pkg/deployments/tasks/20210721-liquidity-bootstrapping-pool/abi/LiquidityBootstrappingPool.json",
-        )?
-        .github(
-            "BalancerV2LiquidityBootstrappingPoolFactory",
-            "balancer-labs/balancer-v2-monorepo/7a643349a5ef4511234b19a33e3f18d30770cb66/\
-             pkg/deployments/tasks/20210721-liquidity-bootstrapping-pool/abi/LiquidityBootstrappingPoolFactory.json",
-        )?
-        .github(
             "BalancerV2WeightedPool",
             "balancer-labs/balancer-v2-monorepo/a3b570a2aa655d4c4941a67e3db6a06fbd72ef09/\
              pkg/deployments/extra-abis/WeightedPool.json",
@@ -143,35 +133,21 @@ fn run() -> Result<()> {
             "IUniswapLikeRouter",
             "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Router02.json",
         )?
-        .manual(
+        .github(
             "BalancerV2BasePool",
-            "Balancer does not publish ABIs for base contracts",
-        )
-        .manual(
+            "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePool.json"
+        )?
+        .github(
             "BalancerV2BasePoolFactory",
-            "Balancer does not publish ABIs for base contracts",
-        )
-        .npm(
-            "IUniswapV3Factory",
-            "@uniswap/v3-core@1.0.0/artifacts/contracts/interfaces/IUniswapV3Factory.sol/IUniswapV3Factory.json",
+            "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePoolSplitCodeFactory.json"
         )?
         .github(
-            "IZeroEx",
-            "0xProject/protocol/c1177416f50c2465ee030dacc14ff996eebd4e74/\
-             packages/contract-artifacts/artifacts/IZeroEx.json",
+            "Koyo",
+            "koyo-finance/koyo/23f50fab5ac84d80a2b9916070ae0903c3418d6b/abis/Koyo.json"
         )?
         .github(
-            "ISwaprPair",
-            "levelkdev/dxswap-core/3511bab996096f9c9c9bc3af0d94222650fd1e40/\
-             build/IDXswapPair.json",
-        )?
-        .npm(
-            "CowProtocolToken",
-            "@cowprotocol/token@1.1.0/build/artifacts/src/contracts/CowProtocolToken.sol/CowProtocolToken.json",
-        )?
-        .npm(
-            "CowProtocolVirtualToken",
-            "@cowprotocol/token@1.1.0/build/artifacts/src/contracts/CowProtocolVirtualToken.sol/CowProtocolVirtualToken.json",
+            "VotingEscrow",
+            "koyo-finance/koyo/23f50fab5ac84d80a2b9916070ae0903c3418d6b/abis/VotingEscrow.json"
         )?;
 
     Ok(())
