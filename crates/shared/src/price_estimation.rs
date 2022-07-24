@@ -7,7 +7,6 @@ pub mod instrumented;
 pub mod native;
 pub mod native_price_cache;
 pub mod sanitized;
-pub mod zeroex;
 
 use crate::{
     bad_token::BadTokenDetecting,
@@ -32,7 +31,6 @@ use thiserror::Error;
 #[clap(rename_all = "verbatim")]
 pub enum PriceEstimatorType {
     Baseline,
-    ZeroEx,
     Quasimodo,
     Yearn,
     BalancerSor,

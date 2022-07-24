@@ -29,7 +29,6 @@ pub mod trace_many;
 pub mod tracing;
 pub mod transport;
 pub mod web3_traits;
-pub mod zeroex_api;
 
 use ethcontract::{
     batch::CallBatch,

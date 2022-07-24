@@ -18,7 +18,6 @@ use num::BigRational;
 use reqwest::{Client, Url};
 use shared::balancer_sor_api::DefaultBalancerSorApi;
 use shared::http_solver::{DefaultHttpSolverApi, SolverConfig};
-use shared::zeroex_api::ZeroExApi;
 use shared::{
     baseline_solver::BaseTokens, conversions::U256Ext, token_info::TokenInfoFetching, Web3,
 };
@@ -29,14 +28,12 @@ use std::{
     time::{Duration, Instant},
 };
 use web3::types::AccessList;
-use zeroex_solver::ZeroExSolver;
 
 pub mod balancer_sor_solver;
 mod baseline_solver;
 pub mod http_solver;
 mod naive_solver;
 mod single_order_solver;
-mod zeroex_solver;
 
 /// Interface that all solvers must implement.
 ///
@@ -144,7 +141,6 @@ pub enum SolverType {
     Baseline,
     Mip,
     CowDexAg,
-    ZeroEx,
     Quasimodo,
     BalancerSor,
 }
@@ -222,9 +218,6 @@ pub fn create(
     chain_id: u64,
     client: Client,
     solver_metrics: Arc<dyn SolverMetrics>,
-    zeroex_api: Arc<dyn ZeroExApi>,
-    zeroex_slippage_bps: u32,
-    disabled_zeroex_sources: Vec<String>,
     quasimodo_uses_internal_buffers: bool,
     mip_uses_internal_buffers: bool,
     external_solvers: Vec<ExternalSolverArg>,
@@ -297,22 +290,6 @@ pub fn create(
                         ..Default::default()
                     },
                 ))),
-                SolverType::ZeroEx => {
-                    let zeroex_solver = ZeroExSolver::new(
-                        account,
-                        web3.clone(),
-                        settlement_contract.clone(),
-                        chain_id,
-                        zeroex_api.clone(),
-                        zeroex_slippage_bps,
-                        disabled_zeroex_sources.clone(),
-                    )
-                    .unwrap();
-                    Ok(shared(SingleOrderSolver::new(
-                        zeroex_solver,
-                        solver_metrics.clone(),
-                    )))
-                }
                 SolverType::BalancerSor => Ok(shared(SingleOrderSolver::new(
                     BalancerSorSolver::new(
                         account,

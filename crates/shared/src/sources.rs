@@ -22,7 +22,6 @@ pub enum BaselineSource {
     UniswapV2,
     BalancerV2,
     Swapr,
-    ZeroEx,
 }
 
 pub fn defaults_for_chain(chain_id: u64) -> Result<Vec<BaselineSource>> {
@@ -30,7 +29,6 @@ pub fn defaults_for_chain(chain_id: u64) -> Result<Vec<BaselineSource>> {
         1 => vec![
             BaselineSource::UniswapV2,
             BaselineSource::BalancerV2,
-            BaselineSource::ZeroEx,
         ],
         4 => vec![
             BaselineSource::UniswapV2,
@@ -56,7 +54,6 @@ pub async fn uniswap_like_liquidity_sources(
             BaselineSource::UniswapV2 => uniswap_v2::get_liquidity_source(web3).await?,
             BaselineSource::Swapr => swapr::get_liquidity_source(web3).await?,
             BaselineSource::BalancerV2 => continue,
-            BaselineSource::ZeroEx => continue,
         };
 
         liquidity_sources.insert(*source, liquidity_source);

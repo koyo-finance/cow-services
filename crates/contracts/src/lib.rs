@@ -54,7 +54,6 @@ include!(concat!(env!("OUT_DIR"), "/ISwaprPair.rs"));
 include!(concat!(env!("OUT_DIR"), "/UniswapV2Factory.rs"));
 include!(concat!(env!("OUT_DIR"), "/UniswapV2Router02.rs"));
 include!(concat!(env!("OUT_DIR"), "/WETH9.rs"));
-include!(concat!(env!("OUT_DIR"), "/IZeroEx.rs"));
 include!(concat!(env!("OUT_DIR"), "/CowProtocolToken.rs"));
 include!(concat!(env!("OUT_DIR"), "/CowProtocolVirtualToken.rs"));
 

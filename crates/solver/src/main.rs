@@ -19,14 +19,13 @@ use shared::{
     token_info::{CachedTokenInfoFetcher, TokenInfoFetcher},
     token_list::TokenList,
     transport::{create_instrumented_transport, http::HttpTransport},
-    zeroex_api::DefaultZeroExApi,
 };
 use solver::{
     arguments::TransactionStrategyArg,
     driver::Driver,
     liquidity::{
         balancer_v2::BalancerV2Liquidity, order_converter::OrderConverter,
-        uniswap_v2::UniswapLikeLiquidity, zeroex::ZeroExLiquidity,
+        uniswap_v2::UniswapLikeLiquidity,
     },
     liquidity_collector::LiquidityCollector,
     metrics::Metrics,
@@ -200,18 +199,6 @@ async fn main() {
         }
     };
 
-    let zeroex_api = Arc::new(
-        DefaultZeroExApi::new(
-            args.shared
-                .zeroex_url
-                .as_deref()
-                .unwrap_or(DefaultZeroExApi::DEFAULT_URL),
-            args.shared.zeroex_api_key,
-            client.clone(),
-        )
-        .unwrap(),
-    );
-
     let solver = solver::solver::create(
         web3.clone(),
         solvers,
@@ -228,30 +215,15 @@ async fn main() {
         chain_id,
         client.clone(),
         metrics.clone(),
-        zeroex_api.clone(),
-        args.zeroex_slippage_bps,
-        args.shared.disabled_zeroex_sources,
         args.shared.quasimodo_uses_internal_buffers,
         args.shared.mip_uses_internal_buffers,
         args.external_solvers.unwrap_or_default(),
     )
     .expect("failure creating solvers");
 
-    let zeroex_liquidity = if baseline_sources.contains(&BaselineSource::ZeroEx) {
-        Some(ZeroExLiquidity {
-            api: zeroex_api,
-            zeroex: contracts::IZeroEx::deployed(&web3).await.unwrap(),
-            base_tokens,
-            gpv2: settlement_contract.clone(),
-        })
-    } else {
-        None
-    };
-
     let liquidity_collector = LiquidityCollector {
         uniswap_like_liquidity,
         balancer_v2_liquidity,
-        zeroex_liquidity,
     };
     let market_makable_token_list =
         TokenList::from_url(&args.market_makable_token_list, chain_id, client.clone())
@@ -442,7 +414,6 @@ async fn build_amm_artifacts(
                 .expect("couldn't load deployed Swapr router")
                 .address(),
             BaselineSource::BalancerV2 => continue,
-            BaselineSource::ZeroEx => continue,
         };
         res.push(UniswapLikeLiquidity::new(
             IUniswapLikeRouter::at(&web3, router_address),

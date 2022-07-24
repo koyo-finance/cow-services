@@ -94,12 +94,6 @@ pub struct Arguments {
     )]
     pub block_stream_poll_interval_seconds: Duration,
 
-    #[clap(long, env)]
-    pub zeroex_url: Option<String>,
-
-    #[clap(long, env)]
-    pub zeroex_api_key: Option<String>,
-
     /// If quasimodo should use internal buffers to improve solution quality.
     #[clap(long, env)]
     pub quasimodo_uses_internal_buffers: bool,
@@ -113,10 +107,6 @@ pub struct Arguments {
     /// supported Balancer V2 factory kinds if not specified.
     #[clap(long, env, arg_enum, ignore_case = true, use_value_delimiter = true)]
     pub balancer_factories: Option<Vec<BalancerFactoryKind>>,
-
-    /// The list of disabled 0x sources.
-    #[clap(long, env, use_value_delimiter = true)]
-    pub disabled_zeroex_sources: Vec<String>,
 
     /// Deny list of balancer pool ids.
     #[clap(long, env, use_value_delimiter = true)]
@@ -189,19 +179,6 @@ impl Display for Arguments {
         writeln!(f)?;
         writeln!(
             f,
-            "zeroex_url: {}",
-            self.zeroex_url.as_deref().unwrap_or("None")
-        )?;
-        writeln!(
-            f,
-            "zeroex_api_key: {}",
-            self.zeroex_api_key
-                .as_ref()
-                .map(|_| "SECRET")
-                .unwrap_or("None")
-        )?;
-        writeln!(
-            f,
             "quasimodo_uses_internal_buffers: {}",
             self.quasimodo_uses_internal_buffers
         )?;
@@ -211,11 +188,6 @@ impl Display for Arguments {
             self.mip_uses_internal_buffers
         )?;
         writeln!(f, "balancer_factories: {:?}", self.balancer_factories)?;
-        writeln!(
-            f,
-            "disabled_zeroex_sources: {:?}",
-            self.disabled_zeroex_sources
-        )?;
         writeln!(
             f,
             "balancer_pool_deny_list: {:?}",

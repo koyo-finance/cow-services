@@ -50,7 +50,6 @@ use shared::{
         native::NativePriceEstimator,
         native_price_cache::CachingNativePriceEstimator,
         sanitized::SanitizedPriceEstimator,
-        zeroex::ZeroExPriceEstimator,
         PriceEstimating, PriceEstimatorType,
     },
     rate_limiter::RateLimiter,
@@ -64,7 +63,6 @@ use shared::{
     },
     token_info::{CachedTokenInfoFetcher, TokenInfoFetcher},
     transport::{create_instrumented_transport, http::HttpTransport},
-    zeroex_api::DefaultZeroExApi,
 };
 use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio::task;
@@ -294,17 +292,6 @@ async fn main() {
     } else {
         None
     };
-    let zeroex_api = Arc::new(
-        DefaultZeroExApi::new(
-            args.shared
-                .zeroex_url
-                .as_deref()
-                .unwrap_or(DefaultZeroExApi::DEFAULT_URL),
-            args.shared.zeroex_api_key.clone(),
-            client.clone(),
-        )
-        .unwrap(),
-    );
     let instrumented = |inner: Box<dyn PriceEstimating>, name: String| {
         InstrumentedPriceEstimator::new(inner, name, metrics.clone())
     };
@@ -352,11 +339,6 @@ async fn main() {
                     base_tokens.clone(),
                     native_token.address(),
                     native_token_price_estimation_amount,
-                    rate_limiter(estimator.name()),
-                )),
-                PriceEstimatorType::ZeroEx => Box::new(ZeroExPriceEstimator::new(
-                    zeroex_api.clone(),
-                    args.shared.disabled_zeroex_sources.clone(),
                     rate_limiter(estimator.name()),
                 )),
                 PriceEstimatorType::Quasimodo => create_http_estimator(

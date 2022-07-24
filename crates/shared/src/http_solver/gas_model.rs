@@ -19,10 +19,6 @@ impl GasModel {
         self.cost_for_gas(GAS_PER_ORDER.into())
     }
 
-    pub fn zeroex_order_cost(&self) -> TokenAmount {
-        self.cost_for_gas(GAS_PER_ZEROEX_ORDER.into())
-    }
-
     pub fn uniswap_cost(&self) -> TokenAmount {
         self.cost_for_gas(GAS_PER_UNISWAP.into())
     }
