@@ -205,7 +205,6 @@ async fn main() {
         base_tokens.clone(),
         native_token_contract.address(),
         args.mip_solver_url,
-        args.cow_dex_ag_solver_url,
         args.quasimodo_solver_url,
         args.balancer_sor_url,
         &settlement_contract,

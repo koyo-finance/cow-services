@@ -24,10 +24,6 @@ pub struct Arguments {
     #[clap(long, env, default_value = "http://localhost:8000")]
     pub quasimodo_solver_url: Url,
 
-    /// The API endpoint to call the cow-dex-ag-solver solver
-    #[clap(long, env, default_value = "http://localhost:8000")]
-    pub cow_dex_ag_solver_url: Url,
-
     /// The API endpoint for the Balancer SOR API for solving.
     #[clap(long, env, default_value = "http://localhost:8000")]
     pub balancer_sor_url: Url,
@@ -269,7 +265,6 @@ impl std::fmt::Display for Arguments {
         writeln!(f, "orderbook_url: {}", self.orderbook_url)?;
         writeln!(f, "mip_solver_url: {}", self.mip_solver_url)?;
         writeln!(f, "quasimodo_solver_url: {}", self.quasimodo_solver_url)?;
-        writeln!(f, "cow_dex_ag_solver_url: {}", self.cow_dex_ag_solver_url)?;
         writeln!(f, "balancer_sor_url: {}", self.balancer_sor_url)?;
         writeln!(f, "solver_account: {:?}", self.solver_account)?;
         writeln!(f, "target_confirm_time: {:?}", self.target_confirm_time)?;

@@ -140,7 +140,6 @@ pub enum SolverType {
     Naive,
     Baseline,
     Mip,
-    CowDexAg,
     Quasimodo,
     BalancerSor,
 }
@@ -208,7 +207,6 @@ pub fn create(
     base_tokens: Arc<BaseTokens>,
     native_token: H160,
     mip_solver_url: Url,
-    cow_dex_ag_solver_url: Url,
     quasimodo_solver_url: Url,
     balancer_sor_url: Url,
     settlement_contract: &GPv2Settlement,
@@ -274,12 +272,6 @@ pub fn create(
                         use_internal_buffers: Some(mip_uses_internal_buffers),
                         ..Default::default()
                     },
-                ))),
-                SolverType::CowDexAg => Ok(shared(create_http_solver(
-                    account,
-                    cow_dex_ag_solver_url.clone(),
-                    "CowDexAg".to_string(),
-                    SolverConfig::default(),
                 ))),
                 SolverType::Quasimodo => Ok(shared(create_http_solver(
                     account,
