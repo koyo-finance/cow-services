@@ -39,8 +39,8 @@ include!(concat!(env!("OUT_DIR"), "/ERC1271SignatureValidator.rs"));
 include!(concat!(env!("OUT_DIR"), "/UniswapV2Factory.rs"));
 include!(concat!(env!("OUT_DIR"), "/UniswapV2Router02.rs"));
 include!(concat!(env!("OUT_DIR"), "/WETH9.rs"));
-include!(concat!(env!("OUT_DIR"), "/CowProtocolToken.rs"));
-include!(concat!(env!("OUT_DIR"), "/CowProtocolVirtualToken.rs"));
+include!(concat!(env!("OUT_DIR"), "/Koyo.rs"));
+include!(concat!(env!("OUT_DIR"), "/VotingEscrow.rs"));
 
 #[cfg(test)]
 mod tests {

@@ -230,17 +230,20 @@ fn main() {
             .add_network_str("5", "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6")
             .add_network_str("100", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d")
     });
-    generate_contract_with_config("CowProtocolToken", |builder| {
-        builder
-            .add_network_str("1", "0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB")
-            .add_network_str("5", "0x3430d04E42a722c5Ae52C5Bffbf1F230C2677600")
-            .add_network_str("100", "0x177127622c4A00F3d409B75571e12cB3c8973d3c")
+    generate_contract_with_config("Koyo", |builder| {
+        builder.add_network_str("288", "0x618CC6549ddf12de637d46CDDadaFC0C2951131C")
     });
-    generate_contract_with_config("CowProtocolVirtualToken", |builder| {
+    generate_contract_with_config("VotingEscrow", |builder| {
         builder
-            .add_network_str("1", "0xD057B63f5E69CF1B929b356b579Cba08D7688048")
-            .add_network_str("5", "0xD057B63f5E69CF1B929b356b579Cba08D7688048 ")
-            .add_network_str("100", "0xc20C9C13E853fc64d054b73fF21d3636B2d97eaB")
+            .add_network_str("288", "0xD3535a7797F921cbCD275d746A4EFb1fBba0989F")
+            .add_method_alias(
+                "totalSupply(uint256)",
+                "total_supply_at_timestamp"
+            )
+            .add_method_alias(
+                "balanceOf(address,uint256)",
+                "balance_of_at_timestamp"
+            )
     });
 }
 

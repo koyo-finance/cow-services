@@ -1,4 +1,4 @@
-use crate::fee_subsidy::cow_token::SubsidyTiers;
+use crate::fee_subsidy::kyo_token::SubsidyTiers;
 use anyhow::{anyhow, Context, Result};
 use model::app_id::AppId;
 use primitive_types::{H160, U256};
@@ -133,13 +133,13 @@ pub struct Arguments {
     pub partner_additional_fee_factors: HashMap<AppId, f64>,
 
     /// Used to configure how much of the regular fee a user should pay based on their
-    /// COW + VCOW balance in base units on the current network.
+    /// KYO + veKYO balance in base units on the current network.
     ///
     /// The expected format is "10:0.75,150:0.5" for 2 subsidy tiers.
-    /// A balance of [10,150) COW will cause you to pay 75% of the regular fee and a balance of
-    /// [150, inf) COW will cause you to pay 50% of the regular fee.
+    /// A balance of [10,150) KYO will cause you to pay 75% of the regular fee and a balance of
+    /// [150, inf) KYO will cause you to pay 50% of the regular fee.
     #[clap(long, env)]
-    pub cow_fee_factors: Option<SubsidyTiers>,
+    pub kyo_fee_factors: Option<SubsidyTiers>,
 
     /// The API endpoint to call the mip v2 solver for price estimation
     #[clap(long, env)]
@@ -271,7 +271,7 @@ impl std::fmt::Display for Arguments {
             "partner_additional_fee_factors: {:?}",
             self.partner_additional_fee_factors
         )?;
-        writeln!(f, "cow_fee_factors: {:?}", self.cow_fee_factors)?;
+        writeln!(f, "kyo_fee_factors: {:?}", self.kyo_fee_factors)?;
         write!(f, "quasimodo_solver_url: ")?;
         display_option(&self.quasimodo_solver_url, f)?;
         writeln!(f)?;

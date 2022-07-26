@@ -200,10 +200,11 @@ where
                 .meta
                 .ok_or_else(|| anyhow!("event missing metadata"))?
                 .block_number;
-            let BasePoolFactoryEvent::PoolCreated(pool_created) = event.data;
+            if let BasePoolFactoryEvent::PoolCreated(pool_created) = event.data {
+                self.index_pool_creation(pool_created, block_created)
+                    .await?;
+            }
 
-            self.index_pool_creation(pool_created, block_created)
-                .await?;
         }
 
         Ok(())

@@ -26,7 +26,7 @@
 //! `Box<dyn Fn(f64) -> f64>` to allow for arbitrary subsidy functions.
 
 pub mod config;
-pub mod cow_token;
+pub mod kyo_token;
 
 use anyhow::Result;
 use ethcontract::{H160, U256};

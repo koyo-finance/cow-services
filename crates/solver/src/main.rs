@@ -2,7 +2,6 @@ use anyhow::Context;
 use clap::{ArgEnum, Parser};
 use contracts::{BalancerV2Vault, IUniswapLikeRouter, WETH9};
 use num::rational::Ratio;
-use primitive_types::U256;
 use shared::{
     baseline_solver::BaseTokens,
     current_block::current_block_stream,

@@ -1,6 +1,6 @@
 use clap::{ArgEnum, Parser};
 use contracts::{
-    BalancerV2Vault, CowProtocolToken, CowProtocolVirtualToken, GPv2Settlement,
+    BalancerV2Vault, Koyo, VotingEscrow, GPv2Settlement,
     WETH9,
 };
 use ethcontract::errors::DeployError;
@@ -10,7 +10,7 @@ use orderbook::{
     database::Postgres,
     event_updater::EventUpdater,
     fee_subsidy::{
-        config::FeeSubsidyConfiguration, cow_token::CowSubsidy, FeeSubsidies, FeeSubsidizing,
+        config::FeeSubsidyConfiguration, kyo_token::KoyoSubsidy, FeeSubsidies, FeeSubsidizing,
     },
     gas_price::InstrumentedGasEstimator,
     metrics::Metrics,
@@ -95,12 +95,6 @@ async fn main() {
         metrics.clone(),
     );
     let web3 = web3::Web3::new(transport);
-    let current_block = web3
-        .eth()
-        .block_number()
-        .await
-        .expect("block_number")
-        .as_u64();
     let settlement_contract = GPv2Settlement::deployed(&web3)
         .await
         .expect("Couldn't load deployed settlement");
@@ -416,22 +410,22 @@ async fn main() {
         Some(args.native_price_cache_max_update_size),
     );
 
-    let cow_token = match CowProtocolToken::deployed(&web3).await {
+    let koyo_token = match Koyo::deployed(&web3).await {
         Err(DeployError::NotFound(_)) => None,
         other => Some(other.unwrap()),
     };
-    let cow_vtoken = match CowProtocolVirtualToken::deployed(&web3).await {
+    let koyo_ve = match VotingEscrow::deployed(&web3).await {
         Err(DeployError::NotFound(_)) => None,
         other => Some(other.unwrap()),
     };
-    let cow_tokens = match (cow_token, cow_vtoken) {
+    let koyo_tokens = match (koyo_token, koyo_ve) {
         (None, None) => None,
-        (Some(token), Some(vtoken)) => Some((token, vtoken)),
-        _ => panic!("should either have both cow token contracts or none"),
+        (Some(token), Some(vetoken)) => Some((token, vetoken)),
+        _ => panic!("should either have both koyo token contracts or none"),
     };
-    let cow_subsidy = cow_tokens.map(|(token, vtoken)| {
-        tracing::debug!("using cow token contracts for subsidy");
-        CowSubsidy::new(token, vtoken, args.cow_fee_factors.unwrap_or_default())
+    let koyo_subsidy = koyo_tokens.map(|(token, vetoken)| {
+        tracing::debug!("using koyo token contracts for subsidy");
+        KoyoSubsidy::new(token, vetoken, args.kyo_fee_factors.unwrap_or_default())
     });
 
     let fee_subsidy_config = Arc::new(FeeSubsidyConfiguration {
@@ -442,10 +436,10 @@ async fn main() {
         partner_additional_fee_factors: args.partner_additional_fee_factors.clone(),
     }) as Arc<dyn FeeSubsidizing>;
 
-    let fee_subsidy = match cow_subsidy {
-        Some(cow_subsidy) => Arc::new(FeeSubsidies(vec![
+    let fee_subsidy = match koyo_subsidy {
+        Some(koyo_subsidy) => Arc::new(FeeSubsidies(vec![
             fee_subsidy_config,
-            Arc::new(cow_subsidy),
+            Arc::new(koyo_subsidy),
         ])),
         None => fee_subsidy_config,
     };

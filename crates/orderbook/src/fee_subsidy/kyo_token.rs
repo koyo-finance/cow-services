@@ -1,7 +1,7 @@
 use super::{FeeSubsidizing, Subsidy, SubsidyParameters};
 use anyhow::{Context, Result};
 use cached::{Cached, TimedSizedCache};
-use contracts::{CowProtocolToken, CowProtocolVirtualToken};
+use contracts::{Koyo, VotingEscrow};
 use ethcontract::Web3;
 use primitive_types::{H160, U256};
 use shared::transport::buffered::{Buffered, Configuration};
@@ -51,21 +51,21 @@ impl std::str::FromStr for SubsidyTiers {
     }
 }
 
-pub struct CowSubsidy {
-    token: CowProtocolToken,
-    vtoken: CowProtocolVirtualToken,
+pub struct KoyoSubsidy {
+    token: Koyo,
+    vetoken: VotingEscrow,
     subsidy_tiers: SubsidyTiers,
     cache: Mutex<TimedSizedCache<H160, f64>>,
 }
 
-impl CowSubsidy {
+impl KoyoSubsidy {
     pub fn new(
-        token: CowProtocolToken,
-        vtoken: CowProtocolVirtualToken,
+        token: Koyo,
+        vetoken: VotingEscrow,
         subsidy_tiers: SubsidyTiers,
     ) -> Self {
         // NOTE: A long caching time might bite us should we ever start advertising that people can
-        // buy COW to reduce their fees. `CACHE_LIFESPAN` would have to pass after buying COW to
+        // buy KYO to reduce their fees. `CACHE_LIFESPAN` would have to pass after buying KYO to
         // qualify for the subsidy.
         let cache = TimedSizedCache::with_size_and_lifespan_and_refresh(
             CACHE_SIZE,
@@ -84,31 +84,31 @@ impl CowSubsidy {
             },
         );
         let web3 = Web3::new(buffered);
-        let token = CowProtocolToken::at(&web3, token.address());
-        let vtoken = CowProtocolVirtualToken::at(&web3, vtoken.address());
+        let token = Koyo::at(&web3, token.address());
+        let vetoken = VotingEscrow::at(&web3, vetoken.address());
 
         Self {
             token,
-            vtoken,
+            vetoken,
             subsidy_tiers,
             cache: Mutex::new(cache),
         }
     }
 
     async fn subsidy_factor_uncached(&self, user: H160) -> Result<f64> {
-        let (balance, vbalance) = futures::future::try_join(
+        let (balance, vebalance) = futures::future::try_join(
             self.token.balance_of(user).call(),
-            self.vtoken.balance_of(user).call(),
+            self.vetoken.balance_of(user).call(),
         )
         .await?;
-        let combined = balance.saturating_add(vbalance);
+        let combined = balance.saturating_add(vebalance);
         let tier = self.subsidy_tiers.0.range(..=combined).rev().next();
         let factor = tier.map(|tier| *tier.1).unwrap_or(1.0);
-        tracing::debug!(?user, ?balance, ?vbalance, ?combined, ?factor);
+        tracing::debug!(?user, ?balance, ?vebalance, ?combined, ?factor);
         Ok(factor)
     }
 
-    async fn cow_subsidy_factor(&self, user: H160) -> Result<f64> {
+    async fn kyo_subsidy_factor(&self, user: H160) -> Result<f64> {
         if let Some(subsidy_factor) = self.cache.lock().unwrap().cache_get(&user).copied() {
             return Ok(subsidy_factor);
         }
@@ -119,10 +119,10 @@ impl CowSubsidy {
 }
 
 #[async_trait::async_trait]
-impl FeeSubsidizing for CowSubsidy {
+impl FeeSubsidizing for KoyoSubsidy {
     async fn subsidy(&self, parameters: SubsidyParameters) -> Result<Subsidy> {
         Ok(Subsidy {
-            factor: self.cow_subsidy_factor(parameters.from).await?,
+            factor: self.kyo_subsidy_factor(parameters.from).await?,
             ..Default::default()
         })
     }
@@ -136,15 +136,15 @@ mod tests {
 
     #[tokio::test]
     #[ignore]
-    async fn mainnet() {
+    async fn boba() {
         shared::tracing::initialize_for_tests("orderbook=debug");
         let transport = shared::transport::create_env_test_transport();
         let web3 = Web3::new(transport);
-        let token = CowProtocolToken::deployed(&web3).await.unwrap();
-        let vtoken = CowProtocolVirtualToken::deployed(&web3).await.unwrap();
-        let subsidy = CowSubsidy::new(
+        let token = Koyo::deployed(&web3).await.unwrap();
+        let vetoken = VotingEscrow::deployed(&web3).await.unwrap();
+        let subsidy = KoyoSubsidy::new(
             token,
-            vtoken,
+            vetoken,
             SubsidyTiers([(U256::from_f64_lossy(1e18), 0.5)].into_iter().collect()),
         );
         //
@@ -154,7 +154,7 @@ mod tests {
             hex!("de1c59bc25d806ad9ddcbe246c4b5e5505645718"),
         ] {
             let user = H160(user);
-            let result = subsidy.cow_subsidy_factor(user).await;
+            let result = subsidy.kyo_subsidy_factor(user).await;
             println!("{:?} {:?}", user, result);
         }
     }

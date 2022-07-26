@@ -1,9 +1,5 @@
-use crate::{
-    event_handling::MAX_REORG_BLOCK_COUNT,
-    sources::{uniswap_v2::pair_provider::PairProvider},
-};
+use crate::sources::uniswap_v2::pair_provider::PairProvider;
 use anyhow::Result;
-use ethcontract::BlockNumber;
 use model::TokenPair;
 use primitive_types::H160;
 
