@@ -114,10 +114,10 @@ impl DomainSeparator {
     pub fn new(chain_id: u64, contract_address: H160) -> Self {
         lazy_static! {
             /// The EIP-712 domain name used for computing the domain separator.
-            static ref DOMAIN_NAME: [u8; 32] = signing::keccak256(b"Gnosis Protocol");
+            static ref DOMAIN_NAME: [u8; 32] = signing::keccak256(b"Koyo Finance");
 
             /// The EIP-712 domain version used for computing the domain separator.
-            static ref DOMAIN_VERSION: [u8; 32] = signing::keccak256(b"v2");
+            static ref DOMAIN_VERSION: [u8; 32] = signing::keccak256(b"v1");
 
             /// The EIP-712 domain type used computing the domain separator.
             static ref DOMAIN_TYPE_HASH: [u8; 32] = signing::keccak256(

@@ -170,35 +170,10 @@ fn main() {
         builder
             .contract_mod_override("gpv2_settlement")
             .add_network(
-                "1",
+                "288",
                 Network {
-                    address: addr("0x9008D19f58AAbD9eD0D60971565AA8510560ab41"),
-                    // <https://etherscan.io/tx/0xf49f90aa5a268c40001d1227b76bb4dd8247f18361fcad9fffd4a7a44f1320d3>
+                    address: addr("0xc3E6AEC4300c78b2D12966457f113f8C2B30949b"),
                     deployment_information: Some(DeploymentInformation::BlockNumber(12593265)),
-                },
-            )
-            .add_network(
-                "4",
-                Network {
-                    address: addr("0x9008D19f58AAbD9eD0D60971565AA8510560ab41"),
-                    // <https://rinkeby.etherscan.io/tx/0x609fa2e8f32c73c1f5dc21ff60a26238dacb50d4674d336c90d6950bdda17a21>
-                    deployment_information: Some(DeploymentInformation::BlockNumber(8727415)),
-                },
-            )
-            .add_network(
-                "5",
-                Network {
-                    address: addr("0x9008D19f58AAbD9eD0D60971565AA8510560ab41"),
-                    // <https://goerli.etherscan.io/tx/0x982f089060ff66e19d0683ef1cc6a637297331a9ba95b65d8eb84b9f8dc64b04>
-                    deployment_information: Some(DeploymentInformation::BlockNumber(7020473)),
-                },
-            )
-            .add_network(
-                "100",
-                Network {
-                    address: addr("0x9008D19f58AAbD9eD0D60971565AA8510560ab41"),
-                    // <https://blockscout.com/xdai/mainnet/tx/0x9ddc538f89cd8433f4a19bc4de0de27e7c68a1d04a14b327185e4bba9af87133>
-                    deployment_information: Some(DeploymentInformation::BlockNumber(16465100)),
                 },
             )
     });
@@ -213,22 +188,17 @@ fn main() {
     generate_contract("ERC1271SignatureValidator");
     generate_contract_with_config("UniswapV2Factory", |builder| {
         builder
-            .add_network_str("1", "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f")
-            .add_network_str("4", "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f")
-            .add_network_str("5", "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f")
+            .add_network_str("137", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
+            .add_network_str("42220", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
     });
     generate_contract_with_config("UniswapV2Router02", |builder| {
         builder
-            .add_network_str("1", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
-            .add_network_str("4", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
-            .add_network_str("5", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
+            .add_network_str("137", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
+            .add_network_str("42220", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
     });
     generate_contract_with_config("WETH9", |builder| {
         builder
-            .add_network_str("1", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
-            .add_network_str("4", "0xc778417E063141139Fce010982780140Aa0cD5Ab")
-            .add_network_str("5", "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6")
-            .add_network_str("100", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d")
+            .add_network_str("288", "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000")
     });
     generate_contract_with_config("Koyo", |builder| {
         builder.add_network_str("288", "0x618CC6549ddf12de637d46CDDadaFC0C2951131C")
@@ -236,14 +206,8 @@ fn main() {
     generate_contract_with_config("VotingEscrow", |builder| {
         builder
             .add_network_str("288", "0xD3535a7797F921cbCD275d746A4EFb1fBba0989F")
-            .add_method_alias(
-                "totalSupply(uint256)",
-                "total_supply_at_timestamp"
-            )
-            .add_method_alias(
-                "balanceOf(address,uint256)",
-                "balance_of_at_timestamp"
-            )
+            .add_method_alias("totalSupply(uint256)", "total_supply_at_timestamp")
+            .add_method_alias("balanceOf(address,uint256)", "balance_of_at_timestamp")
     });
 }
 
@@ -261,9 +225,7 @@ fn generate_contract_with_config(
     let contract = TruffleLoader::new()
         .name(name)
         .load_contract_from_file(&path)
-        .unwrap_or_else(|_| {
-            panic!("contract file {:?} not found", name)
-        });
+        .unwrap_or_else(|_| panic!("contract file {:?} not found", name));
     let dest = env::var("OUT_DIR").unwrap();
 
     println!("cargo:rerun-if-changed={}", path.display());
