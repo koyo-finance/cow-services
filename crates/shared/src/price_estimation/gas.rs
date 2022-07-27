@@ -49,6 +49,7 @@ pub static GAS_PER_UNISWAP: u64 = 90_171;
 /// Median gas used per BalancerSwapGivenOutInteraction.
 // estimated with https://dune.com/queries/639857
 pub static GAS_PER_BALANCER_SWAP: u64 = 88_892;
+pub static GAS_PER_KOYO_SWAP: u64 = 88_892;
 
 /// Median gas used per UnwrapWethInteraction.
 // estimated with https://dune.com/queries/640753

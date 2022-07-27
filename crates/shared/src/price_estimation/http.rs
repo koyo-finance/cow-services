@@ -20,6 +20,7 @@ use crate::{
         balancer_v2::{
             pools::common::compute_scaling_rate, BalancerPoolFetcher, BalancerPoolFetching,
         },
+        koyo_v2::{KoyoPoolFetcher, KoyoPoolFetching},
         uniswap_v2::{pool_cache::PoolCache, pool_fetching::PoolFetching},
     },
     token_info::TokenInfoFetching,
@@ -44,6 +45,7 @@ pub struct HttpPriceEstimator {
     >,
     pools: Arc<PoolCache>,
     balancer_pools: Option<Arc<BalancerPoolFetcher>>,
+    koyo_pools: Option<Arc<KoyoPoolFetcher>>,
     token_info: Arc<dyn TokenInfoFetching>,
     gas_info: Arc<dyn GasPriceEstimating>,
     native_token: H160,
@@ -58,6 +60,7 @@ impl HttpPriceEstimator {
         api: Arc<dyn HttpSolverApi>,
         pools: Arc<PoolCache>,
         balancer_pools: Option<Arc<BalancerPoolFetcher>>,
+        koyo_pools: Option<Arc<KoyoPoolFetcher>>,
         token_info: Arc<dyn TokenInfoFetching>,
         gas_info: Arc<dyn GasPriceEstimating>,
         native_token: H160,
@@ -70,6 +73,7 @@ impl HttpPriceEstimator {
             sharing: Default::default(),
             pools,
             balancer_pools,
+            koyo_pools,
             token_info,
             gas_info,
             native_token,
@@ -116,13 +120,15 @@ impl HttpPriceEstimator {
             gas_price: gas_price.to_f64_lossy(),
         };
 
-        let (uniswap_pools, balancer_pools) = futures::try_join!(
+        let (uniswap_pools, balancer_pools, koyo_pools) = futures::try_join!(
             self.uniswap_pools(pairs.clone(), &gas_model),
-            self.balancer_pools(pairs.clone(), &gas_model)
+            self.balancer_pools(pairs.clone(), &gas_model),
+            self.koyo_pools(pairs.clone(), &gas_model)
         )?;
         let amms: BTreeMap<usize, AmmModel> = uniswap_pools
             .into_iter()
             .chain(balancer_pools)
+            .chain(koyo_pools)
             .enumerate()
             .collect();
 
@@ -304,6 +310,71 @@ impl HttpPriceEstimator {
         Ok(models)
     }
 
+    async fn koyo_pools(
+        &self,
+        pairs: HashSet<TokenPair>,
+        gas_model: &GasModel,
+    ) -> Result<Vec<AmmModel>> {
+        let pools = match &self.koyo_pools {
+            Some(koyo) => koyo
+                .fetch(pairs, Block::Recent)
+                .await
+                .context("koyo_pools")?,
+            None => return Ok(Vec::new()),
+        };
+        let weighted = pools.weighted_pools.into_iter().map(|pool| AmmModel {
+            parameters: AmmParameters::WeightedProduct(WeightedProductPoolParameters {
+                reserves: pool
+                    .reserves
+                    .into_iter()
+                    .map(|(token, state)| {
+                        (
+                            token,
+                            WeightedPoolTokenData {
+                                balance: state.common.balance,
+                                weight: BigRational::from(state.weight),
+                            },
+                        )
+                    })
+                    .collect(),
+            }),
+            fee: pool.common.swap_fee.into(),
+            cost: gas_model.koyo_cost(),
+            mandatory: false,
+        });
+        let stable = pools
+            .stable_pools
+            .into_iter()
+            .map(|pool| -> Result<AmmModel> {
+                Ok(AmmModel {
+                    parameters: AmmParameters::Stable(StablePoolParameters {
+                        reserves: pool
+                            .reserves
+                            .iter()
+                            .map(|(token, state)| (*token, state.balance))
+                            .collect(),
+                        scaling_rates: pool
+                            .reserves
+                            .into_iter()
+                            .map(|(token, state)| {
+                                Ok((token, compute_scaling_rate(state.scaling_exponent)?))
+                            })
+                            .collect::<Result<_>>()
+                            .with_context(|| "convert stable pool to solver model".to_string())?,
+                        amplification_parameter: pool.amplification_parameter.as_big_rational(),
+                    }),
+                    fee: pool.common.swap_fee.into(),
+                    cost: gas_model.koyo_cost(),
+                    mandatory: false,
+                })
+            });
+        let mut models = Vec::from_iter(weighted);
+        for stable in stable {
+            models.push(stable?);
+        }
+        Ok(models)
+    }
+
     fn extract_cost(&self, cost: &Option<TokenAmount>) -> Result<U256, PriceEstimationError> {
         if let Some(cost) = cost {
             if cost.token != self.native_token {
@@ -342,8 +413,8 @@ mod tests {
     use crate::http_solver::{DefaultHttpSolverApi, SolverConfig};
     use crate::price_estimation::Query;
     use crate::recent_block_cache::CacheConfig;
-    use crate::sources::balancer_v2::pool_fetching::BalancerContracts;
-    use crate::sources::balancer_v2::BalancerFactoryKind;
+    use crate::sources::balancer_v2::{pool_fetching::BalancerContracts, BalancerFactoryKind};
+    use crate::sources::koyo_v2::{pool_fetching::KoyoContracts, KoyoFactoryKind};
     use crate::sources::uniswap_v2;
     use crate::sources::uniswap_v2::pool_cache::NoopPoolCacheMetrics;
     use crate::token_info::TokenInfoFetcher;
@@ -419,7 +490,8 @@ mod tests {
             .unwrap(),
         );
         let token_info = Arc::new(TokenInfoFetcher { web3: web3.clone() });
-        let contracts = BalancerContracts::new(&web3).await.unwrap();
+        let balancer_contracts = BalancerContracts::new(&web3).await.unwrap();
+        let koyo_contracts = KoyoContracts::new(&web3).await.unwrap();
         let current_block_stream = current_block_stream(web3.clone(), Duration::from_secs(10))
             .await
             .unwrap();
@@ -432,7 +504,22 @@ mod tests {
                 current_block_stream.clone(),
                 Arc::new(crate::sources::balancer_v2::pool_fetching::NoopBalancerPoolCacheMetrics),
                 client.clone(),
-                &contracts,
+                &balancer_contracts,
+                Default::default(),
+            )
+            .await
+            .expect("failed to create Balancer pool fetcher"),
+        );
+        let koyo_pool_fetcher = Arc::new(
+            KoyoPoolFetcher::new(
+                chain_id,
+                token_info.clone(),
+                KoyoFactoryKind::value_variants(),
+                Default::default(),
+                current_block_stream.clone(),
+                Arc::new(crate::sources::koyo_v2::pool_fetching::NoopKoyoPoolCacheMetrics),
+                client.clone(),
+                &koyo_contracts,
                 Default::default(),
             )
             .await
@@ -455,6 +542,7 @@ mod tests {
             sharing: Default::default(),
             pools,
             balancer_pools: Some(balancer_pool_fetcher),
+            koyo_pools: Some(koyo_pool_fetcher),
             token_info,
             gas_info,
             native_token: testlib::tokens::WETH,

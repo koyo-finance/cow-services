@@ -54,10 +54,10 @@ use shared::{
     },
     rate_limiter::RateLimiter,
     recent_block_cache::CacheConfig,
-    sources::balancer_v2::BalancerFactoryKind,
     sources::{
         self,
-        balancer_v2::{pool_fetching::BalancerContracts, BalancerPoolFetcher},
+        balancer_v2::{pool_fetching::BalancerContracts, BalancerPoolFetcher, BalancerFactoryKind},
+        koyo_v2::{pool_fetching::KoyoContracts, KoyoPoolFetcher, KoyoFactoryKind},
         uniswap_v2::pool_cache::PoolCache,
         BaselineSource, PoolAggregator,
     },
@@ -262,6 +262,7 @@ async fn main() {
     let token_info_fetcher = Arc::new(CachedTokenInfoFetcher::new(Box::new(TokenInfoFetcher {
         web3: web3.clone(),
     })));
+
     let balancer_pool_fetcher = if baseline_sources.contains(&BaselineSource::BalancerV2) {
         let contracts = BalancerContracts::new(&web3).await.unwrap();
         let balancer_pool_fetcher = Arc::new(
@@ -286,6 +287,31 @@ async fn main() {
     } else {
         None
     };
+    let koyo_pool_fetcher = if baseline_sources.contains(&BaselineSource::KoyoV2) {
+        let contracts = KoyoContracts::new(&web3).await.unwrap();
+        let koyo_pool_fetcher = Arc::new(
+            KoyoPoolFetcher::new(
+                chain_id,
+                token_info_fetcher.clone(),
+                args.shared
+                    .koyo_factories
+                    .as_deref()
+                    .unwrap_or_else(KoyoFactoryKind::value_variants),
+                cache_config,
+                current_block_stream.clone(),
+                metrics.clone(),
+                client.clone(),
+                &contracts,
+                args.shared.koyo_pool_deny_list,
+            )
+            .await
+            .expect("failed to create Koyo pool fetcher"),
+        );
+        Some(koyo_pool_fetcher)
+    } else {
+        None
+    };
+
     let instrumented = |inner: Box<dyn PriceEstimating>, name: String| {
         InstrumentedPriceEstimator::new(inner, name, metrics.clone())
     };
@@ -318,6 +344,7 @@ async fn main() {
                     }),
                     pool_fetcher.clone(),
                     balancer_pool_fetcher.clone(),
+                    koyo_pool_fetcher.clone(),
                     token_info_fetcher.clone(),
                     gas_price_estimator.clone(),
                     native_token.address(),
@@ -506,9 +533,14 @@ async fn main() {
             solvable_orders_cache,
         ],
     };
+
     if let Some(balancer) = balancer_pool_fetcher {
         service_maintainer.maintainers.push(balancer);
     }
+    if let Some(koyo) = koyo_pool_fetcher {
+        service_maintainer.maintainers.push(koyo);
+    }
+
     check_database_connection(orderbook.as_ref()).await;
     let quotes =
         Arc::new(QuoteHandler::new(order_validator, optimal_quoter).with_fast_quoter(fast_quoter));

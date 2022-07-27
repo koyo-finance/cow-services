@@ -20,6 +20,7 @@ use std::{
 #[clap(rename_all = "verbatim")]
 pub enum BaselineSource {
     UniswapV2,
+    KoyoV2,
     BalancerV2,
 }
 
@@ -44,6 +45,7 @@ pub async fn uniswap_like_liquidity_sources(
     for source in sources {
         let liquidity_source = match source {
             BaselineSource::UniswapV2 => uniswap_v2::get_liquidity_source(web3).await?,
+            BaselineSource::KoyoV2 => continue,
             BaselineSource::BalancerV2 => continue,
         };
 

@@ -36,12 +36,11 @@ impl KoyoSubgraphClient {
     /// Creates a new Koyo subgraph client for the specified chain ID.
     pub fn for_chain(chain_id: u64, client: Client) -> Result<Self> {
         let subgraph_name = match chain_id {
-            1 => "balancer-v2",
-            4 => "balancer-rinkeby-v2",
+            288 => "exchange-subgraph-boba",
             _ => bail!("unsupported chain {}", chain_id),
         };
         Ok(Self(SubgraphClient::new(
-            "balancer-labs",
+            "koyo-finance",
             subgraph_name,
             client,
         )?))

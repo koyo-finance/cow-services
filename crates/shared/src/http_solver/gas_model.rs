@@ -26,4 +26,8 @@ impl GasModel {
     pub fn balancer_cost(&self) -> TokenAmount {
         self.cost_for_gas(GAS_PER_BALANCER_SWAP.into())
     }
+
+    pub fn koyo_cost(&self) -> TokenAmount {
+        self.cost_for_gas(GAS_PER_KOYO_SWAP.into())
+    }
 }

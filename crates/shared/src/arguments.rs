@@ -2,7 +2,7 @@
 use crate::{
     gas_price_estimation::GasEstimatorType,
     rate_limiter::RateLimitingStrategy,
-    sources::{balancer_v2::BalancerFactoryKind, BaselineSource},
+    sources::{balancer_v2::BalancerFactoryKind, koyo_v2::KoyoFactoryKind, BaselineSource},
 };
 use anyhow::{ensure, Context, Result};
 use ethcontract::{H160, H256, U256};
@@ -112,6 +112,12 @@ pub struct Arguments {
     #[clap(long, env, use_value_delimiter = true)]
     pub balancer_pool_deny_list: Vec<H256>,
 
+    #[clap(long, env, arg_enum, ignore_case = true, use_value_delimiter = true)]
+    pub koyo_factories: Option<Vec<KoyoFactoryKind>>,
+
+    #[clap(long, env, use_value_delimiter = true)]
+    pub koyo_pool_deny_list: Vec<H256>,
+
     /// Value of the authorization header for the solver competition post api.
     #[clap(long, env)]
     pub solver_competition_auth: Option<String>,
@@ -192,6 +198,12 @@ impl Display for Arguments {
             f,
             "balancer_pool_deny_list: {:?}",
             self.balancer_pool_deny_list
+        )?;
+        writeln!(f, "koyo_factories: {:?}", self.koyo_factories)?;
+        writeln!(
+            f,
+            "koyo_pool_deny_list: {:?}",
+            self.koyo_pool_deny_list
         )?;
         writeln!(
             f,
