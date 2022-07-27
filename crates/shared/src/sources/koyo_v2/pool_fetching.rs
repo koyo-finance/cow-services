@@ -25,14 +25,13 @@ use crate::{
     current_block::CurrentBlockStream,
     maintenance::Maintaining,
     recent_block_cache::{Block, CacheConfig},
-    token_info::TokenInfoFetching,
     sources::balancer_v2::swap::fixed_point::Bfp,
+    token_info::TokenInfoFetching,
     Web3, Web3Transport,
 };
 use anyhow::Result;
 use clap::ArgEnum;
 use contracts::{
-    BalancerV2StablePoolFactory,
     BalancerV2StablePoolFactoryV2, BalancerV2Vault, BalancerV2WeightedPool2TokensFactory,
     BalancerV2WeightedPoolFactory,
 };
@@ -148,18 +147,16 @@ pub struct KoyoPoolFetcher {
 #[clap(rename_all = "verbatim")]
 pub enum KoyoFactoryKind {
     Weighted,
-    Weighted2Token,
+    Oracle,
     Stable,
-    StableV2,
 }
 
 /// All balancer related contracts that we expect to exist.
 pub struct KoyoContracts {
     pub vault: BalancerV2Vault,
     pub weighted: BalancerV2WeightedPoolFactory,
-    pub weighted_2_token: BalancerV2WeightedPool2TokensFactory,
-    pub stable: BalancerV2StablePoolFactory,
-    pub stable_v2: BalancerV2StablePoolFactoryV2,
+    pub oracle: BalancerV2WeightedPool2TokensFactory,
+    pub stable: BalancerV2StablePoolFactoryV2,
 }
 
 impl KoyoContracts {
@@ -167,9 +164,8 @@ impl KoyoContracts {
         Ok(Self {
             vault: BalancerV2Vault::deployed(web3).await?,
             weighted: BalancerV2WeightedPoolFactory::deployed(web3).await?,
-            weighted_2_token: BalancerV2WeightedPool2TokensFactory::deployed(web3).await?,
-            stable: BalancerV2StablePoolFactory::deployed(web3).await?,
-            stable_v2: BalancerV2StablePoolFactoryV2::deployed(web3).await?,
+            oracle: BalancerV2WeightedPool2TokensFactory::deployed(web3).await?,
+            stable: BalancerV2StablePoolFactoryV2::deployed(web3).await?,
         })
     }
 }
@@ -230,20 +226,20 @@ impl KoyoPoolFetching for KoyoPoolFetcher {
         // compatibility with the rest of the project. This should eventually
         // be removed and we should use `koyo_v2::pools::Pool` everywhere
         // instead.
-        let fetched_pools = pools.into_iter().fold(
-            FetchedKoyoPools::default(),
-            |mut fetched_pools, pool| {
-                match pool.kind {
-                    PoolKind::Weighted(state) => fetched_pools
-                        .weighted_pools
-                        .push(WeightedPool::new_unpaused(pool.id, state)),
-                    PoolKind::Stable(state) => fetched_pools
-                        .stable_pools
-                        .push(StablePool::new_unpaused(pool.id, state)),
-                }
-                fetched_pools
-            },
-        );
+        let fetched_pools =
+            pools
+                .into_iter()
+                .fold(FetchedKoyoPools::default(), |mut fetched_pools, pool| {
+                    match pool.kind {
+                        PoolKind::Weighted(state) => fetched_pools
+                            .weighted_pools
+                            .push(WeightedPool::new_unpaused(pool.id, state)),
+                        PoolKind::Stable(state) => fetched_pools
+                            .stable_pools
+                            .push(StablePool::new_unpaused(pool.id, state)),
+                    }
+                    fetched_pools
+                });
 
         Ok(fetched_pools)
     }
@@ -285,11 +281,10 @@ async fn create_aggregate_pool_fetcher(
     for factory in factories {
         let registry = match factory {
             KoyoFactoryKind::Weighted => registry!(&contracts.weighted),
-            KoyoFactoryKind::Weighted2Token => {
-                registry!(&contracts.weighted_2_token)
+            KoyoFactoryKind::Oracle => {
+                registry!(&contracts.oracle)
             }
             KoyoFactoryKind::Stable => registry!(&contracts.stable),
-            KoyoFactoryKind::StableV2 => registry!(&contracts.stable_v2),
         };
         fetchers.push(registry);
     }
