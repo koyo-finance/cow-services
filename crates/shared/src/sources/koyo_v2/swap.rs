@@ -1,20 +1,13 @@
 use crate::{
     baseline_solver::BaselineSolvable,
-    sources::balancer_v2::{
-        pool_fetching::{StablePool, TokenState, WeightedPool, WeightedTokenState},
-        swap::math::BalU256,
-    },
+    sources::balancer_v2::swap::error::Error,
+    sources::balancer_v2::swap::fixed_point::Bfp,
+    sources::balancer_v2::swap::math::BalU256,
+    sources::balancer_v2::swap::{stable_math, weighted_math},
+    sources::koyo_v2::pool_fetching::{StablePool, TokenState, WeightedPool, WeightedTokenState},
 };
-use error::Error;
 use ethcontract::{H160, U256};
-use fixed_point::Bfp;
 use std::collections::HashMap;
-
-pub mod error;
-pub mod fixed_point;
-pub mod math;
-pub mod stable_math;
-pub mod weighted_math;
 
 const WEIGHTED_SWAP_GAS_COST: usize = 100_000;
 // See https://dune.xyz/queries/219641 for cost of pure stable swaps
@@ -36,7 +29,7 @@ fn subtract_swap_fee_amount(amount: U256, swap_fee: Bfp) -> Result<U256, Error> 
 
 impl TokenState {
     /// Converts the stored balance into its internal representation as a
-    /// Balancer fixed point number.
+    /// Koyo fixed point number.
     fn upscaled_balance(&self) -> Option<Bfp> {
         self.upscale(self.balance)
     }
@@ -45,7 +38,7 @@ impl TokenState {
         U256::from(10).checked_pow(self.scaling_exponent.into())
     }
 
-    /// Scales the input token amount to the value that is used by the Balancer
+    /// Scales the input token amount to the value that is used by the Koyo
     /// contract to execute math operations.
     fn upscale(&self, amount: U256) -> Option<Bfp> {
         amount
@@ -53,7 +46,7 @@ impl TokenState {
             .map(Bfp::from_wei)
     }
 
-    /// Returns the token amount corresponding to the internal Balancer
+    /// Returns the token amount corresponding to the internal Koyo
     /// representation for the same amount.
     /// Based on contract code here:
     /// https://github.com/balancer-labs/balancer-v2-monorepo/blob/c18ff2686c61a8cbad72cdcfc65e9b11476fdbc3/pkg/pool-utils/contracts/BasePool.sol#L560-L562
@@ -275,7 +268,7 @@ impl BaselineSolvable for StablePool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::sources::balancer_v2::pool_fetching::{AmplificationParameter, CommonPoolState};
+    use crate::sources::koyo_v2::pool_fetching::{AmplificationParameter, CommonPoolState};
     use std::collections::HashMap;
 
     fn create_weighted_pool_with(
