@@ -19,24 +19,24 @@ include!(concat!(
 include!(concat!(env!("OUT_DIR"), "/GnosisSafeProxy.rs"));
 
 include!(concat!(env!("OUT_DIR"), "/BalancerV2Authorizer.rs"));
+include!(concat!(env!("OUT_DIR"), "/BalancerV2Vault.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2BasePool.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2BasePoolFactory.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2StablePool.rs"));
-include!(concat!(env!("OUT_DIR"), "/BalancerV2StablePoolV2.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2StablePoolFactory.rs"));
+include!(concat!(env!("OUT_DIR"), "/BalancerV2StablePoolV2.rs"));
 include!(concat!(
     env!("OUT_DIR"),
     "/BalancerV2StablePoolFactoryV2.rs"
 ));
-include!(concat!(env!("OUT_DIR"), "/BalancerV2Vault.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2WeightedPool.rs"));
 include!(concat!(
     env!("OUT_DIR"),
-    "/BalancerV2WeightedPool2TokensFactory.rs"
+    "/BalancerV2WeightedPoolFactory.rs"
 ));
 include!(concat!(
     env!("OUT_DIR"),
-    "/BalancerV2WeightedPoolFactory.rs"
+    "/BalancerV2WeightedPool2TokensFactory.rs"
 ));
 
 include!(concat!(env!("OUT_DIR"), "/Koyo.rs"));
@@ -44,6 +44,14 @@ include!(concat!(env!("OUT_DIR"), "/VotingEscrow.rs"));
 
 include!(concat!(env!("OUT_DIR"), "/KoyoV2Authorizer.rs"));
 include!(concat!(env!("OUT_DIR"), "/KoyoV2Vault.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2BasePool.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2BasePoolFactory.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2WeightedPool.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2WeightedPoolFactory.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2OracleWeightedPool.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2OracleWeightedPoolFactory.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2StablePool.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2StablePoolFactory.rs"));
 
 include!(concat!(env!("OUT_DIR"), "/IUniswapLikePair.rs"));
 include!(concat!(env!("OUT_DIR"), "/IUniswapLikeRouter.rs"));

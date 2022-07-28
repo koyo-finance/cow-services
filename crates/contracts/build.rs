@@ -66,6 +66,7 @@ fn main() {
                 },
             )
     });
+    generate_contract("BalancerV2WeightedPool");
     generate_contract_with_config("BalancerV2WeightedPoolFactory", |builder| {
         builder
             .contract_mod_override("balancer_v2_weighted_pool_factory")
@@ -88,6 +89,12 @@ fn main() {
                 },
             )
     });
+    generate_contract_with_config("BalancerV2StablePool", |builder| {
+        builder.add_method_alias(
+            "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)",
+            "on_swap_with_balances"
+        )
+    });
     generate_contract_with_config("BalancerV2StablePoolFactory", |builder| {
         builder
             .contract_mod_override("balancer_v2_stable_pool_factory")
@@ -99,6 +106,12 @@ fn main() {
                 },
             )
     });
+    generate_contract_with_config("BalancerV2StablePoolV2", |builder| {
+        builder.add_method_alias(
+            "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)",
+            "on_swap_with_balances"
+        )
+    });
     generate_contract_with_config("BalancerV2StablePoolFactoryV2", |builder| {
         builder
             .contract_mod_override("balancer_v2_stable_pool_factory_v2")
@@ -109,19 +122,6 @@ fn main() {
                     deployment_information: Some(DeploymentInformation::BlockNumber(684091)),
                 },
             )
-    });
-    generate_contract("BalancerV2WeightedPool");
-    generate_contract_with_config("BalancerV2StablePool", |builder| {
-        builder.add_method_alias(
-            "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)",
-            "on_swap_with_balances"
-        )
-    });
-    generate_contract_with_config("BalancerV2StablePoolV2", |builder| {
-        builder.add_method_alias(
-            "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)",
-            "on_swap_with_balances"
-        )
     });
 
     generate_contract_with_config("Koyo", |builder| {
@@ -135,7 +135,9 @@ fn main() {
     });
 
     generate_contract_with_config("KoyoV2Authorizer", |builder| {
-        builder.contract_mod_override("koyo_v2_authorizer")
+        builder
+            .contract_mod_override("koyo_v2_authorizer")
+            .add_network_str("288", "0xeC9c70b34C4CF4b91cC057D726b114Ef3C7A1749")
     });
     generate_contract_with_config("KoyoV2Vault", |builder| {
         builder
@@ -145,6 +147,58 @@ fn main() {
                 Network {
                     address: addr("0x2A4409Cc7d2AE7ca1E3D915337D1B6Ba2350D6a3"),
                     deployment_information: Some(DeploymentInformation::BlockNumber(668337)),
+                },
+            )
+    });
+    generate_contract_with_config("KoyoV2BasePool", |builder| {
+        builder.contract_mod_override("koyo_v2_base_pool")
+    });
+    generate_contract_with_config("KoyoV2BasePoolFactory", |builder| {
+        builder.contract_mod_override("Koyo_v2_base_pool_factory")
+    });
+    generate_contract_with_config("KoyoV2WeightedPool", |builder| {
+        builder.contract_mod_override("koyo_v2_weighted_pool")
+    });
+    generate_contract_with_config("KoyoV2WeightedPoolFactory", |builder| {
+        builder
+            .contract_mod_override("koyo_v2_weighted_pool_factory")
+            .add_network(
+                "288",
+                Network {
+                    address: addr("0xEa34bb7F24F3BB120DAF64Cd1BC9e958FFF9ED0c"),
+                    deployment_information: Some(DeploymentInformation::BlockNumber(673848)),
+                },
+            )
+    });
+    generate_contract_with_config("KoyoV2OracleWeightedPool", |builder| {
+        builder.contract_mod_override("koyo_v2_oracle_weighted_pool")
+    });
+    generate_contract_with_config("KoyoV2OracleWeightedPoolFactory", |builder| {
+        builder
+            .contract_mod_override("koyo_v2_oracle_weighted_pool_factory")
+            .add_network(
+                "288",
+                Network {
+                    address: addr("0x06f607EC266BB98bcb9Bae402D61Ab5E008ab018"),
+                    deployment_information: Some(DeploymentInformation::BlockNumber(673576)),
+                },
+            )
+    });
+    generate_contract_with_config("KoyoV2StablePool", |builder| {
+        builder
+            .add_method_alias(
+                "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)",
+                "on_swap_with_balances"
+            )
+    });
+    generate_contract_with_config("KoyoV2StablePoolFactory", |builder| {
+        builder
+            .contract_mod_override("koyo_v2_stable_pool_factory")
+            .add_network(
+                "288",
+                Network {
+                    address: addr("0xb4455B572b4dBF39d76a10de530988803C13d854"),
+                    deployment_information: Some(DeploymentInformation::BlockNumber(684091)),
                 },
             )
     });

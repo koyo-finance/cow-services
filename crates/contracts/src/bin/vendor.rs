@@ -138,6 +138,14 @@ fn run() -> Result<()> {
             "koyo-finance/exchange-vault-monorepo/477b369ac6a7d13ffc666b8e5cf10ebc99a72b2e/pkg/vault/abis/Vault.json",
         )?
         .github(
+            "KoyoV2BasePool",
+            "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePool.json"
+        )?
+        .github(
+            "KoyoV2BasePoolFactory",
+            "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePoolSplitCodeFactory.json"
+        )?
+        .github(
             "KoyoV2OracleWeightedPool",
             "koyo-finance/exchange-vault-monorepo/477b369ac6a7d13ffc666b8e5cf10ebc99a72b2e/pkg/pools/oracle/abis/OracleWeightedPool.json"
         )?
@@ -164,14 +172,6 @@ fn run() -> Result<()> {
         .github(
             "KoyoV2StablePoolFactory",
             "koyo-finance/exchange-vault-monorepo/42103a3f81e0b63c0b5f994e9bf4d3a66cffe9ec/pkg/pools/stable/abis/StablePoolFactory.json"
-        )?
-        .github(
-            "KoyoV2BasePool",
-            "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePool.json"
-        )?
-        .github(
-            "KoyoV2BasePoolFactory",
-            "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePoolSplitCodeFactory.json"
         )?
         .github(
             "Koyo",
