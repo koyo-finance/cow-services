@@ -93,6 +93,22 @@ fn run() -> Result<()> {
 
     vendor
         .abi_only()
+        .npm(
+            "ERC20",
+            "@openzeppelin/contracts@3.3.0/build/contracts/ERC20.json",
+        )?
+        .manual(
+            "ERC1271SignatureValidator",
+            "Manually vendored ABI for ERC-1271 signature validation",
+        )
+        .github(
+            "BalancerV2BasePool",
+            "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePool.json"
+        )?
+        .github(
+            "BalancerV2BasePoolFactory",
+            "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePoolSplitCodeFactory.json"
+        )?
         .github(
             "BalancerV2WeightedPool",
             "balancer-labs/balancer-v2-monorepo/a3b570a2aa655d4c4941a67e3db6a06fbd72ef09/\
@@ -114,14 +130,6 @@ fn run() -> Result<()> {
             pkg/deployments/tasks/20220609-stable-pool-v2/abi/StablePoolFactory.json",
         )?
         .npm(
-            "ERC20",
-            "@openzeppelin/contracts@3.3.0/build/contracts/ERC20.json",
-        )?
-        .manual(
-            "ERC1271SignatureValidator",
-            "Manually vendored ABI for ERC-1271 signature validation",
-        )
-        .npm(
             "IUniswapLikeFactory",
             "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Factory.json",
         )?
@@ -134,11 +142,11 @@ fn run() -> Result<()> {
             "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Router02.json",
         )?
         .github(
-            "BalancerV2BasePool",
+            "KoyoV2BasePool",
             "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePool.json"
         )?
         .github(
-            "BalancerV2BasePoolFactory",
+            "KoyoV2BasePoolFactory",
             "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePoolSplitCodeFactory.json"
         )?
         .github(
@@ -148,6 +156,14 @@ fn run() -> Result<()> {
         .github(
             "VotingEscrow",
             "koyo-finance/koyo/23f50fab5ac84d80a2b9916070ae0903c3418d6b/abis/VotingEscrow.json"
+        )?
+        .github(
+            "OolongSwapFactory",
+            "koyo-finance/external-abis/c3a794c13a3919b26e7b570f661edaf33eede93a/network/boba/oolongswap/OolongSwapFactory.json"
+        )?
+        .github(
+            "OolongSwapRouter02",
+            "koyo-finance/external-abis/c3a794c13a3919b26e7b570f661edaf33eede93a/network/boba/oolongswap/OolongSwapRouter02.json"
         )?;
 
     Ok(())

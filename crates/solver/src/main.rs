@@ -407,6 +407,10 @@ async fn build_amm_artifacts(
                 .await
                 .expect("couldn't load deployed UniswapV2 router")
                 .address(),
+            BaselineSource::OolongSwap => contracts::OolongSwapRouter02::deployed(&web3)
+                .await
+                .expect("couldn't load deployed OolongSwap router")
+                .address(),
             BaselineSource::KoyoV2 => continue,
             BaselineSource::BalancerV2 => continue,
         };

@@ -18,6 +18,34 @@ fn main() {
     // - https://doc.rust-lang.org/cargo/reference/build-scripts.html#cargorerun-if-changedpath
     println!("cargo:rerun-if-changed=build.rs");
 
+    generate_contract("ERC20");
+    generate_contract("ERC20Mintable");
+    // EIP-1271 contract - SignatureValidator
+    generate_contract("ERC1271SignatureValidator");
+    generate_contract_with_config("WETH9", |builder| {
+        builder
+            .add_network_str("288", "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000")
+    });
+
+    generate_contract("GPv2AllowListAuthentication");
+    generate_contract_with_config("GPv2Settlement", |builder| {
+        builder
+            .contract_mod_override("gpv2_settlement")
+            .add_network(
+                "288",
+                Network {
+                    address: addr("0xc3E6AEC4300c78b2D12966457f113f8C2B30949b"),
+                    deployment_information: Some(DeploymentInformation::BlockNumber(745834)),
+                },
+            )
+    });
+
+    generate_contract("GnosisSafe");
+    generate_contract_with_config("GnosisSafeCompatibilityFallbackHandler", |builder| {
+        builder.add_method_alias("isValidSignature(bytes,bytes)", "is_valid_signature_legacy")
+    });
+    generate_contract("GnosisSafeProxy");
+
     generate_contract_with_config("BalancerV2Authorizer", |builder| {
         builder.contract_mod_override("balancer_v2_authorizer")
     });
@@ -95,29 +123,19 @@ fn main() {
             "on_swap_with_balances"
         )
     });
-    generate_contract("ERC20");
-    generate_contract("ERC20Mintable");
-    generate_contract("GPv2AllowListAuthentication");
-    generate_contract_with_config("GPv2Settlement", |builder| {
+
+    generate_contract_with_config("Koyo", |builder| {
+        builder.add_network_str("288", "0x618CC6549ddf12de637d46CDDadaFC0C2951131C")
+    });
+    generate_contract_with_config("VotingEscrow", |builder| {
         builder
-            .contract_mod_override("gpv2_settlement")
-            .add_network(
-                "288",
-                Network {
-                    address: addr("0xc3E6AEC4300c78b2D12966457f113f8C2B30949b"),
-                    deployment_information: Some(DeploymentInformation::BlockNumber(745834)),
-                },
-            )
+            .add_network_str("288", "0xD3535a7797F921cbCD275d746A4EFb1fBba0989F")
+            .add_method_alias("totalSupply(uint256)", "total_supply_at_timestamp")
+            .add_method_alias("balanceOf(address,uint256)", "balance_of_at_timestamp")
     });
-    generate_contract("GnosisSafe");
-    generate_contract_with_config("GnosisSafeCompatibilityFallbackHandler", |builder| {
-        builder.add_method_alias("isValidSignature(bytes,bytes)", "is_valid_signature_legacy")
-    });
-    generate_contract("GnosisSafeProxy");
+
     generate_contract("IUniswapLikeRouter");
     generate_contract("IUniswapLikePair");
-    // EIP-1271 contract - SignatureValidator
-    generate_contract("ERC1271SignatureValidator");
     generate_contract_with_config("UniswapV2Factory", |builder| {
         builder
             .add_network_str("137", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
@@ -128,18 +146,15 @@ fn main() {
             .add_network_str("137", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
             .add_network_str("42220", "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
     });
-    generate_contract_with_config("WETH9", |builder| {
+
+    // Addresses obtained from https://github.com/OolongSwap/oolongswap-deployments
+    generate_contract_with_config("OolongSwapFactory", |builder| {
         builder
-            .add_network_str("288", "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000")
+            .add_network_str("288", "0x7DDaF116889D655D1c486bEB95017a8211265d29")
     });
-    generate_contract_with_config("Koyo", |builder| {
-        builder.add_network_str("288", "0x618CC6549ddf12de637d46CDDadaFC0C2951131C")
-    });
-    generate_contract_with_config("VotingEscrow", |builder| {
+    generate_contract_with_config("OolongSwapRouter02", |builder| {
         builder
-            .add_network_str("288", "0xD3535a7797F921cbCD275d746A4EFb1fBba0989F")
-            .add_method_alias("totalSupply(uint256)", "total_supply_at_timestamp")
-            .add_method_alias("balanceOf(address,uint256)", "balance_of_at_timestamp")
+            .add_network_str("288", "0x17C83E2B96ACfb5190d63F5E46d93c107eC0b514")
     });
 }
 

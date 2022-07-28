@@ -29,8 +29,8 @@ impl DefaultBalancerSorApi {
     /// Creates a new Balancer SOR API instance.
     pub fn new(client: Client, base_url: impl IntoUrl, chain_id: u64) -> Result<Self> {
         ensure!(
-            chain_id == 1 || chain_id == 4,
-            "Balancer SOR API only supported on Mainnet and Rinkeby",
+            chain_id == 288,
+            "Koyo SOR API only supported on Boba",
         );
 
         let url = base_url.into_url()?.join(&chain_id.to_string())?;

@@ -3,6 +3,21 @@
 pub mod paths;
 pub mod vault;
 
+include!(concat!(env!("OUT_DIR"), "/ERC20.rs"));
+include!(concat!(env!("OUT_DIR"), "/ERC20Mintable.rs"));
+include!(concat!(env!("OUT_DIR"), "/ERC1271SignatureValidator.rs"));
+include!(concat!(env!("OUT_DIR"), "/WETH9.rs"));
+
+include!(concat!(env!("OUT_DIR"), "/GPv2AllowListAuthentication.rs"));
+include!(concat!(env!("OUT_DIR"), "/GPv2Settlement.rs"));
+
+include!(concat!(env!("OUT_DIR"), "/GnosisSafe.rs"));
+include!(concat!(
+    env!("OUT_DIR"),
+    "/GnosisSafeCompatibilityFallbackHandler.rs"
+));
+include!(concat!(env!("OUT_DIR"), "/GnosisSafeProxy.rs"));
+
 include!(concat!(env!("OUT_DIR"), "/BalancerV2Authorizer.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2BasePool.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2BasePoolFactory.rs"));
@@ -23,24 +38,17 @@ include!(concat!(
     env!("OUT_DIR"),
     "/BalancerV2WeightedPoolFactory.rs"
 ));
-include!(concat!(env!("OUT_DIR"), "/ERC20.rs"));
-include!(concat!(env!("OUT_DIR"), "/ERC20Mintable.rs"));
-include!(concat!(env!("OUT_DIR"), "/GPv2AllowListAuthentication.rs"));
-include!(concat!(env!("OUT_DIR"), "/GPv2Settlement.rs"));
-include!(concat!(env!("OUT_DIR"), "/GnosisSafe.rs"));
-include!(concat!(
-    env!("OUT_DIR"),
-    "/GnosisSafeCompatibilityFallbackHandler.rs"
-));
-include!(concat!(env!("OUT_DIR"), "/GnosisSafeProxy.rs"));
-include!(concat!(env!("OUT_DIR"), "/IUniswapLikePair.rs"));
-include!(concat!(env!("OUT_DIR"), "/IUniswapLikeRouter.rs"));
-include!(concat!(env!("OUT_DIR"), "/ERC1271SignatureValidator.rs"));
-include!(concat!(env!("OUT_DIR"), "/UniswapV2Factory.rs"));
-include!(concat!(env!("OUT_DIR"), "/UniswapV2Router02.rs"));
-include!(concat!(env!("OUT_DIR"), "/WETH9.rs"));
+
 include!(concat!(env!("OUT_DIR"), "/Koyo.rs"));
 include!(concat!(env!("OUT_DIR"), "/VotingEscrow.rs"));
+
+include!(concat!(env!("OUT_DIR"), "/IUniswapLikePair.rs"));
+include!(concat!(env!("OUT_DIR"), "/IUniswapLikeRouter.rs"));
+include!(concat!(env!("OUT_DIR"), "/UniswapV2Factory.rs"));
+include!(concat!(env!("OUT_DIR"), "/UniswapV2Router02.rs"));
+
+include!(concat!(env!("OUT_DIR"), "/OolongSwapFactory.rs"));
+include!(concat!(env!("OUT_DIR"), "/OolongSwapRouter02.rs"));
 
 #[cfg(test)]
 mod tests {
