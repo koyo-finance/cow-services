@@ -1,8 +1,5 @@
 use clap::{ArgEnum, Parser};
-use contracts::{
-    BalancerV2Vault, Koyo, VotingEscrow, GPv2Settlement,
-    WETH9,
-};
+use contracts::{BalancerV2Vault, GPv2Settlement, Koyo, VotingEscrow, WETH9};
 use ethcontract::errors::DeployError;
 use model::{order::BUY_ETH_ADDRESS, DomainSeparator};
 use orderbook::{
@@ -50,19 +47,19 @@ use shared::{
         native::NativePriceEstimator,
         native_price_cache::CachingNativePriceEstimator,
         sanitized::SanitizedPriceEstimator,
-        PriceEstimating, PriceEstimatorType,
+        PriceEstimating, PriceEstimatorType, koyo_sor::KoyoSor,
     },
     rate_limiter::RateLimiter,
     recent_block_cache::CacheConfig,
     sources::{
         self,
-        balancer_v2::{pool_fetching::BalancerContracts, BalancerPoolFetcher, BalancerFactoryKind},
-        koyo_v2::{pool_fetching::KoyoContracts, KoyoPoolFetcher, KoyoFactoryKind},
+        balancer_v2::{pool_fetching::BalancerContracts, BalancerFactoryKind, BalancerPoolFetcher},
+        koyo_v2::{pool_fetching::KoyoContracts, KoyoFactoryKind, KoyoPoolFetcher},
         uniswap_v2::pool_cache::PoolCache,
         BaselineSource, PoolAggregator,
     },
     token_info::{CachedTokenInfoFetcher, TokenInfoFetcher},
-    transport::{create_instrumented_transport, http::HttpTransport},
+    transport::{create_instrumented_transport, http::HttpTransport}, koyo_sor_api::DefaultKoyoSorApi,
 };
 use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio::task;
@@ -315,9 +312,14 @@ async fn main() {
     let instrumented = |inner: Box<dyn PriceEstimating>, name: String| {
         InstrumentedPriceEstimator::new(inner, name, metrics.clone())
     };
+
     let balancer_sor_api = args
         .balancer_sor_url
         .map(|url| Arc::new(DefaultBalancerSorApi::new(client.clone(), url, chain_id).unwrap()));
+    let koyo_sor_api = args
+        .koyo_sor_url
+        .map(|url| Arc::new(DefaultKoyoSorApi::new(client.clone(), url, chain_id).unwrap()));
+
     let create_base_estimator =
         |estimator: PriceEstimatorType| -> (String, Arc<dyn PriceEstimating>) {
             let rate_limiter = |name| {
@@ -376,6 +378,11 @@ async fn main() {
                 ),
                 PriceEstimatorType::BalancerSor => Box::new(BalancerSor::new(
                     balancer_sor_api.clone().expect("trying to create BalancerSor price estimator but didn't get balancer sor url"),
+                    rate_limiter(estimator.name()),
+                    gas_price_estimator.clone(),
+                )),
+                PriceEstimatorType::KoyoSor => Box::new(KoyoSor::new(
+                    koyo_sor_api.clone().expect("trying to create KoyoSor price estimator but didn't get koyo sor url"),
                     rate_limiter(estimator.name()),
                     gas_price_estimator.clone(),
                 )),

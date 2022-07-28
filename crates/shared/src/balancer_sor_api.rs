@@ -29,8 +29,8 @@ impl DefaultBalancerSorApi {
     /// Creates a new Balancer SOR API instance.
     pub fn new(client: Client, base_url: impl IntoUrl, chain_id: u64) -> Result<Self> {
         ensure!(
-            chain_id == 288,
-            "Koyo SOR API only supported on Boba",
+            chain_id == 1 || chain_id == 4,
+            "Balancer SOR API only supported on Mainnet and Rinkeby",
         );
 
         let url = base_url.into_url()?.join(&chain_id.to_string())?;
@@ -157,7 +157,7 @@ impl Quote {
     /// returns this in case it fails to find a route for whatever reason (not
     /// enough liquidity, no trading path, etc.). We don't consider this an
     /// error case.
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         *self == Quote::default()
     }
 }

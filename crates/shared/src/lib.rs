@@ -29,6 +29,7 @@ pub mod trace_many;
 pub mod tracing;
 pub mod transport;
 pub mod web3_traits;
+pub mod koyo_sor_api;
 
 use ethcontract::{
     batch::CallBatch,

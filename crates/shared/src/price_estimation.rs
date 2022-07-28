@@ -7,6 +7,7 @@ pub mod instrumented;
 pub mod native;
 pub mod native_price_cache;
 pub mod sanitized;
+pub mod koyo_sor;
 
 use crate::{
     bad_token::BadTokenDetecting,
@@ -34,6 +35,7 @@ pub enum PriceEstimatorType {
     Quasimodo,
     Yearn,
     BalancerSor,
+    KoyoSor,
 }
 
 impl PriceEstimatorType {

@@ -228,6 +228,10 @@ pub struct Arguments {
     /// The API endpoint for the Balancer SOR API for solving.
     #[clap(long, env)]
     pub balancer_sor_url: Option<Url>,
+
+    /// The API endpoint for the Koyo SOR API for solving.
+    #[clap(long, env)]
+    pub koyo_sor_url: Option<Url>,
 }
 
 impl std::fmt::Display for Arguments {
@@ -318,6 +322,8 @@ impl std::fmt::Display for Arguments {
         writeln!(f, "enable_blockscout: {}", self.enable_blockscout)?;
         write!(f, "balancer_sor_url: ")?;
         display_option(&self.balancer_sor_url, f)?;
+        write!(f, "koyo_sor_url: ")?;
+        display_option(&self.koyo_sor_url, f)?;
         writeln!(f)?;
         Ok(())
     }
