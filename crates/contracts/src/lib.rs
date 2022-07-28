@@ -44,13 +44,11 @@ include!(concat!(env!("OUT_DIR"), "/VotingEscrow.rs"));
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use ethcontract::{
-        common::DeploymentInformation,
-        futures::future::{self, FutureExt as _, Ready},
+        futures::future::{self, Ready},
         json::json,
         jsonrpc::{Call, Id, MethodCall, Params, Value},
-        web3::{error::Result as Web3Result, BatchTransport, RequestId, Transport, Web3},
+        web3::{error::Result as Web3Result, BatchTransport, RequestId, Transport},
     };
 
     #[derive(Debug, Clone)]
@@ -91,55 +89,5 @@ mod tests {
                 .map(|_| Ok(json!(format!("{}", self.0))))
                 .collect()))
         }
-    }
-
-    #[test]
-    fn deployment_addresses() {
-        macro_rules! assert_has_deployment_address {
-            ($contract:ident for $network:expr) => {{
-                let web3 = Web3::new(ChainIdTransport($network));
-                let deployed = $contract::deployed(&web3).now_or_never().unwrap();
-                assert!(deployed.is_ok());
-            }};
-        }
-
-        for network in &[1, 4, 100] {
-            assert_has_deployment_address!(GPv2Settlement for *network);
-            assert_has_deployment_address!(WETH9 for *network);
-        }
-        for network in &[1, 4] {
-            assert_has_deployment_address!(BalancerV2Vault for *network);
-            assert_has_deployment_address!(BalancerV2WeightedPoolFactory for *network);
-            assert_has_deployment_address!(BalancerV2WeightedPool2TokensFactory for *network);
-            assert_has_deployment_address!(BalancerV2StablePoolFactory for *network);
-            assert_has_deployment_address!(UniswapV2Factory for *network);
-            assert_has_deployment_address!(UniswapV2Router02 for *network);
-        }
-        assert_has_deployment_address!(BalancerV2StablePoolFactoryV2 for 1);
-    }
-
-    #[test]
-    fn deployment_information() {
-        macro_rules! assert_has_deployment_information {
-            ($contract:ident for $network:expr) => {{
-                let web3 = Web3::new(ChainIdTransport($network));
-                let instance = $contract::deployed(&web3).now_or_never().unwrap().unwrap();
-                assert!(matches!(
-                    instance.deployment_information(),
-                    Some(DeploymentInformation::BlockNumber(_)),
-                ));
-            }};
-        }
-
-        for network in &[1, 4, 100] {
-            assert_has_deployment_information!(GPv2Settlement for *network);
-        }
-        for network in &[1, 4] {
-            assert_has_deployment_information!(BalancerV2Vault for *network);
-            assert_has_deployment_information!(BalancerV2WeightedPoolFactory for *network);
-            assert_has_deployment_information!(BalancerV2WeightedPool2TokensFactory for *network);
-            assert_has_deployment_information!(BalancerV2StablePoolFactory for *network);
-        }
-        assert_has_deployment_information!(BalancerV2StablePoolFactoryV2 for 1);
     }
 }
