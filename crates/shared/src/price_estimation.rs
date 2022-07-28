@@ -33,7 +33,6 @@ use thiserror::Error;
 pub enum PriceEstimatorType {
     Baseline,
     Quasimodo,
-    Yearn,
     BalancerSor,
     KoyoSor,
 }

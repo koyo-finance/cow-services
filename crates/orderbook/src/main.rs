@@ -370,12 +370,6 @@ async fn main() {
                         "quasimodo solver url is required when using quasimodo price estimation",
                     ),
                 ),
-                PriceEstimatorType::Yearn => create_http_estimator(
-                    "yearn-price-estimator".to_string(),
-                    args.yearn_solver_url
-                        .clone()
-                        .expect("yearn solver url is required when using yearn price estimation"),
-                ),
                 PriceEstimatorType::BalancerSor => Box::new(BalancerSor::new(
                     balancer_sor_api.clone().expect("trying to create BalancerSor price estimator but didn't get balancer sor url"),
                     rate_limiter(estimator.name()),
