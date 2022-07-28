@@ -26,6 +26,37 @@ fn run() -> Result<()> {
 
     vendor
         .full()
+        .npm(
+            "ERC20Mintable",
+            "@openzeppelin/contracts@2.5.0/build/contracts/ERC20Mintable.json",
+        )?
+        .npm("WETH9", "canonical-weth@1.4.0/build/contracts/WETH9.json")?
+        .npm(
+            "GnosisSafe",
+            "@gnosis.pm/safe-contracts@1.3.0/build/artifacts/contracts/\
+             GnosisSafe.sol/GnosisSafe.json",
+        )?
+        .npm(
+            "GnosisSafeCompatibilityFallbackHandler",
+            "@gnosis.pm/safe-contracts@1.3.0/build/artifacts/contracts/\
+             handler/CompatibilityFallbackHandler.sol/CompatibilityFallbackHandler.json",
+        )?
+        .npm(
+            "GnosisSafeProxy",
+            "@gnosis.pm/safe-contracts@1.3.0/build/artifacts/contracts/\
+             proxies/GnosisSafeProxy.sol/GnosisSafeProxy.json",
+        )?
+        .npm(
+            "GPv2AllowListAuthentication",
+            // We use `_Implementation` because the use of a proxy contract makes
+            // deploying for the e2e tests more cumbersome.
+            "@cowprotocol/contracts@1.1.2/\
+             deployments/mainnet/GPv2AllowListAuthentication_Implementation.json",
+        )?
+        .npm(
+            "GPv2Settlement",
+            "@cowprotocol/contracts@1.1.2/deployments/mainnet/GPv2Settlement.json",
+        )?
         .github(
             "BalancerV2Authorizer",
             "balancer-labs/balancer-v2-monorepo/a3b570a2aa655d4c4941a67e3db6a06fbd72ef09/\
@@ -52,44 +83,13 @@ fn run() -> Result<()> {
              pkg/deployments/tasks/20210624-stable-pool/abi/StablePoolFactory.json",
         )?
         .npm(
-            "ERC20Mintable",
-            "@openzeppelin/contracts@2.5.0/build/contracts/ERC20Mintable.json",
-        )?
-        .npm(
-            "GPv2AllowListAuthentication",
-            // We use `_Implementation` because the use of a proxy contract makes
-            // deploying for the e2e tests more cumbersome.
-            "@cowprotocol/contracts@1.1.2/\
-             deployments/mainnet/GPv2AllowListAuthentication_Implementation.json",
-        )?
-        .npm(
-            "GPv2Settlement",
-            "@cowprotocol/contracts@1.1.2/deployments/mainnet/GPv2Settlement.json",
-        )?
-        .npm(
-            "GnosisSafe",
-            "@gnosis.pm/safe-contracts@1.3.0/build/artifacts/contracts/\
-             GnosisSafe.sol/GnosisSafe.json",
-        )?
-        .npm(
-            "GnosisSafeCompatibilityFallbackHandler",
-            "@gnosis.pm/safe-contracts@1.3.0/build/artifacts/contracts/\
-             handler/CompatibilityFallbackHandler.sol/CompatibilityFallbackHandler.json",
-        )?
-        .npm(
-            "GnosisSafeProxy",
-            "@gnosis.pm/safe-contracts@1.3.0/build/artifacts/contracts/\
-             proxies/GnosisSafeProxy.sol/GnosisSafeProxy.json",
-        )?
-        .npm(
             "UniswapV2Factory",
             "@uniswap/v2-core@1.0.1/build/UniswapV2Factory.json",
         )?
         .npm(
             "UniswapV2Router02",
             "@uniswap/v2-periphery@1.1.0-beta.0/build/UniswapV2Router02.json",
-        )?
-        .npm("WETH9", "canonical-weth@1.4.0/build/contracts/WETH9.json")?;
+        )?;
 
     vendor
         .abi_only()
@@ -97,10 +97,10 @@ fn run() -> Result<()> {
             "ERC20",
             "@openzeppelin/contracts@3.3.0/build/contracts/ERC20.json",
         )?
-        .manual(
+        .github(
             "ERC1271SignatureValidator",
-            "Manually vendored ABI for ERC-1271 signature validation",
-        )
+            "koyo-finance/external-abis/e5c1410f4ac7c501396abac9681c1856eaaefd33/network/_/ERC1271SignatureValidator.json",
+        )?
         .github(
             "BalancerV2BasePool",
             "koyo-finance/exchange-vault-monorepo/770722fc4332dfbbc7598451bb7ff2e62f2322d8/pkg/pool-utils/abis/BasePool.json"
@@ -129,17 +129,41 @@ fn run() -> Result<()> {
             "balancer-labs/balancer-v2-monorepo/903d34e491a5e9c5d59dabf512c7addf1ccf9bbd/\
             pkg/deployments/tasks/20220609-stable-pool-v2/abi/StablePoolFactory.json",
         )?
-        .npm(
-            "IUniswapLikeFactory",
-            "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Factory.json",
+        .github(
+            "KoyoV2Authorizer",
+            "koyo-finance/exchange-vault-monorepo/42103a3f81e0b63c0b5f994e9bf4d3a66cffe9ec/pkg/vault/abis/Authorizer.json",
         )?
-        .npm(
-            "IUniswapLikePair",
-            "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Pair.json",
+        .github(
+            "KoyoV2Vault",
+            "koyo-finance/exchange-vault-monorepo/477b369ac6a7d13ffc666b8e5cf10ebc99a72b2e/pkg/vault/abis/Vault.json",
         )?
-        .npm(
-            "IUniswapLikeRouter",
-            "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Router02.json",
+        .github(
+            "KoyoV2OracleWeightedPool",
+            "koyo-finance/exchange-vault-monorepo/477b369ac6a7d13ffc666b8e5cf10ebc99a72b2e/pkg/pools/oracle/abis/OracleWeightedPool.json"
+        )?
+        .github(
+            "KoyoV2OracleWeightedPoolFactory",
+            "koyo-finance/exchange-vault-monorepo/477b369ac6a7d13ffc666b8e5cf10ebc99a72b2e/pkg/pools/oracle/abis/OracleWeightedPoolFactory.json"
+        )?
+        .github(
+            "KoyoV2WeightedPool",
+            "koyo-finance/exchange-vault-monorepo/477b369ac6a7d13ffc666b8e5cf10ebc99a72b2e/pkg/pools/weighted/abis/WeightedPool.json"
+        )?
+        .github(
+            "KoyoV2WeightedPoolFactory",
+            "koyo-finance/exchange-vault-monorepo/477b369ac6a7d13ffc666b8e5cf10ebc99a72b2e/pkg/pools/weighted/abis/WeightedPoolFactory.json"
+        )?
+        .github(
+            "KoyoV2WeightedPoolNoAMFactory",
+            "koyo-finance/exchange-vault-monorepo/477b369ac6a7d13ffc666b8e5cf10ebc99a72b2e/pkg/pools/weighted/abis/WeightedPoolNoAMFactory.json"
+        )?
+        .github(
+            "KoyoV2StablePool",
+            "koyo-finance/exchange-vault-monorepo/42103a3f81e0b63c0b5f994e9bf4d3a66cffe9ec/pkg/pools/stable/abis/StablePool.json"
+        )?
+        .github(
+            "KoyoV2StablePoolFactory",
+            "koyo-finance/exchange-vault-monorepo/42103a3f81e0b63c0b5f994e9bf4d3a66cffe9ec/pkg/pools/stable/abis/StablePoolFactory.json"
         )?
         .github(
             "KoyoV2BasePool",
@@ -156,6 +180,18 @@ fn run() -> Result<()> {
         .github(
             "VotingEscrow",
             "koyo-finance/koyo/23f50fab5ac84d80a2b9916070ae0903c3418d6b/abis/VotingEscrow.json"
+        )?
+        .npm(
+            "IUniswapLikeFactory",
+            "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Factory.json",
+        )?
+        .npm(
+            "IUniswapLikePair",
+            "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Pair.json",
+        )?
+        .npm(
+            "IUniswapLikeRouter",
+            "@uniswap/v2-periphery@1.1.0-beta.0/build/IUniswapV2Router02.json",
         )?
         .github(
             "OolongSwapFactory",

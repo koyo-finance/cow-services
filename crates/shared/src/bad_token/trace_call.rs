@@ -309,7 +309,7 @@ mod tests {
     use super::*;
     use crate::{
         bad_token::token_owner_finder::{
-            FeeValues, UniswapLikePairProviderFinder,
+            UniswapLikePairProviderFinder,
         },
         sources::{uniswap_v2},
         transport::create_env_test_transport,

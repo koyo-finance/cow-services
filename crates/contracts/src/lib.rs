@@ -42,6 +42,9 @@ include!(concat!(
 include!(concat!(env!("OUT_DIR"), "/Koyo.rs"));
 include!(concat!(env!("OUT_DIR"), "/VotingEscrow.rs"));
 
+include!(concat!(env!("OUT_DIR"), "/KoyoV2Authorizer.rs"));
+include!(concat!(env!("OUT_DIR"), "/KoyoV2Vault.rs"));
+
 include!(concat!(env!("OUT_DIR"), "/IUniswapLikePair.rs"));
 include!(concat!(env!("OUT_DIR"), "/IUniswapLikeRouter.rs"));
 include!(concat!(env!("OUT_DIR"), "/UniswapV2Factory.rs"));

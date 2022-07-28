@@ -134,6 +134,21 @@ fn main() {
             .add_method_alias("balanceOf(address,uint256)", "balance_of_at_timestamp")
     });
 
+    generate_contract_with_config("KoyoV2Authorizer", |builder| {
+        builder.contract_mod_override("koyo_v2_authorizer")
+    });
+    generate_contract_with_config("KoyoV2Vault", |builder| {
+        builder
+            .contract_mod_override("koyo_v2_vault")
+            .add_network(
+                "288",
+                Network {
+                    address: addr("0x2A4409Cc7d2AE7ca1E3D915337D1B6Ba2350D6a3"),
+                    deployment_information: Some(DeploymentInformation::BlockNumber(668337)),
+                },
+            )
+    });
+
     generate_contract("IUniswapLikeRouter");
     generate_contract("IUniswapLikePair");
     generate_contract_with_config("UniswapV2Factory", |builder| {

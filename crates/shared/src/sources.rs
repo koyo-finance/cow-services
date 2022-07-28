@@ -28,10 +28,6 @@ pub enum BaselineSource {
 
 pub fn defaults_for_chain(chain_id: u64) -> Result<Vec<BaselineSource>> {
     Ok(match chain_id {
-        1 => vec![],
-        4 => vec![],
-        5 => vec![],
-        100 => vec![],
         288 => vec![BaselineSource::KoyoV2, BaselineSource::OolongSwap],
         _ => bail!("unsupported chain {:#x}", chain_id),
     })

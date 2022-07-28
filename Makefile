@@ -1,3 +1,6 @@
+contracts:
+	cargo run -p contracts --features=bin 
+
 orderbook-boba-debug:
 	cargo run --bin orderbook -- \
 	--node-url https://mainnet.boba.network \
