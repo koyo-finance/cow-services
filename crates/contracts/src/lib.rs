@@ -49,7 +49,10 @@ include!(concat!(env!("OUT_DIR"), "/KoyoV2BasePoolFactory.rs"));
 include!(concat!(env!("OUT_DIR"), "/KoyoV2WeightedPool.rs"));
 include!(concat!(env!("OUT_DIR"), "/KoyoV2WeightedPoolFactory.rs"));
 include!(concat!(env!("OUT_DIR"), "/KoyoV2OracleWeightedPool.rs"));
-include!(concat!(env!("OUT_DIR"), "/KoyoV2OracleWeightedPoolFactory.rs"));
+include!(concat!(
+    env!("OUT_DIR"),
+    "/KoyoV2OracleWeightedPoolFactory.rs"
+));
 include!(concat!(env!("OUT_DIR"), "/KoyoV2StablePool.rs"));
 include!(concat!(env!("OUT_DIR"), "/KoyoV2StablePoolFactory.rs"));
 

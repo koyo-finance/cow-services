@@ -12,6 +12,7 @@ use shared::{
     sources::{
         self,
         balancer_v2::{pool_fetching::BalancerContracts, BalancerFactoryKind, BalancerPoolFetcher},
+        koyo_v2::{pool_fetching::KoyoContracts, KoyoFactoryKind, KoyoPoolFetcher},
         uniswap_v2::pool_cache::PoolCache,
         BaselineSource,
     },
@@ -23,8 +24,8 @@ use solver::{
     arguments::TransactionStrategyArg,
     driver::Driver,
     liquidity::{
-        balancer_v2::BalancerV2Liquidity, order_converter::OrderConverter,
-        uniswap_v2::UniswapLikeLiquidity,
+        balancer_v2::BalancerV2Liquidity, koyo_v2::KoyoV2Liquidity,
+        order_converter::OrderConverter, uniswap_v2::UniswapLikeLiquidity,
     },
     liquidity_collector::LiquidityCollector,
     metrics::Metrics,
@@ -166,6 +167,40 @@ async fn main() {
         } else {
             (None, None)
         };
+    let (koyo_pool_maintainer, koyo_v2_liquidity) =
+        if baseline_sources.contains(&BaselineSource::KoyoV2) {
+            let contracts = KoyoContracts::new(&web3).await.unwrap();
+            let koyo_pool_fetcher = Arc::new(
+                KoyoPoolFetcher::new(
+                    chain_id,
+                    token_info_fetcher.clone(),
+                    args.shared
+                        .koyo_factories
+                        .as_deref()
+                        .unwrap_or_else(KoyoFactoryKind::value_variants),
+                    cache_config,
+                    current_block_stream.clone(),
+                    metrics.clone(),
+                    client.clone(),
+                    &contracts,
+                    args.shared.koyo_pool_deny_list,
+                )
+                .await
+                .expect("failed to create Koyo pool fetcher"),
+            );
+            (
+                Some(koyo_pool_fetcher.clone() as Arc<dyn Maintaining>),
+                Some(KoyoV2Liquidity::new(
+                    web3.clone(),
+                    koyo_pool_fetcher,
+                    base_tokens.clone(),
+                    settlement_contract.clone(),
+                    contracts.vault,
+                )),
+            )
+        } else {
+            (None, None)
+        };
 
     let uniswap_like_liquidity = build_amm_artifacts(
         &pool_caches,
@@ -222,6 +257,7 @@ async fn main() {
     let liquidity_collector = LiquidityCollector {
         uniswap_like_liquidity,
         balancer_v2_liquidity,
+        koyo_v2_liquidity,
     };
     let market_makable_token_list =
         TokenList::from_url(&args.market_makable_token_list, chain_id, client.clone())
@@ -386,6 +422,7 @@ async fn main() {
             .into_iter()
             .map(|(_, cache)| cache as Arc<dyn Maintaining>)
             .chain(balancer_pool_maintainer)
+            .chain(koyo_pool_maintainer)
             .collect(),
     };
     tokio::task::spawn(maintainer.run_maintenance_on_new_block(current_block_stream));

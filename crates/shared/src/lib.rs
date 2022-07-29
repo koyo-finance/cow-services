@@ -13,6 +13,7 @@ pub mod event_handling;
 pub mod gas_price_estimation;
 pub mod http_client;
 pub mod http_solver;
+pub mod koyo_sor_api;
 pub mod maintenance;
 pub mod metrics;
 pub mod network;
@@ -29,7 +30,6 @@ pub mod trace_many;
 pub mod tracing;
 pub mod transport;
 pub mod web3_traits;
-pub mod koyo_sor_api;
 
 use ethcontract::{
     batch::CallBatch,

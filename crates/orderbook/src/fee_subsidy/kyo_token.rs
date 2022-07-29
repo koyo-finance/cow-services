@@ -59,11 +59,7 @@ pub struct KoyoSubsidy {
 }
 
 impl KoyoSubsidy {
-    pub fn new(
-        token: Koyo,
-        vetoken: VotingEscrow,
-        subsidy_tiers: SubsidyTiers,
-    ) -> Self {
+    pub fn new(token: Koyo, vetoken: VotingEscrow, subsidy_tiers: SubsidyTiers) -> Self {
         // NOTE: A long caching time might bite us should we ever start advertising that people can
         // buy KYO to reduce their fees. `CACHE_LIFESPAN` would have to pass after buying KYO to
         // qualify for the subsidy.

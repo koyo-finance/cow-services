@@ -1,8 +1,8 @@
 use crate::{
     liquidity::Liquidity,
     liquidity::{
-        balancer_v2::BalancerV2Liquidity, uniswap_v2::UniswapLikeLiquidity,
-        LimitOrder,
+        balancer_v2::BalancerV2Liquidity, koyo_v2::KoyoV2Liquidity,
+        uniswap_v2::UniswapLikeLiquidity, LimitOrder,
     },
 };
 use anyhow::{Context, Result};
@@ -11,6 +11,7 @@ use shared::recent_block_cache::Block;
 pub struct LiquidityCollector {
     pub uniswap_like_liquidity: Vec<UniswapLikeLiquidity>,
     pub balancer_v2_liquidity: Option<BalancerV2Liquidity>,
+    pub koyo_v2_liquidity: Option<KoyoV2Liquidity>,
 }
 
 impl LiquidityCollector {
@@ -35,6 +36,7 @@ impl LiquidityCollector {
                     .map(Liquidity::ConstantProduct),
             );
         }
+
         if let Some(balancer_v2_liquidity) = self.balancer_v2_liquidity.as_ref() {
             let (stable_orders, weighted_orders) = balancer_v2_liquidity
                 .get_liquidity(&user_orders, at_block)
@@ -44,6 +46,16 @@ impl LiquidityCollector {
             amms.extend(weighted_orders.into_iter().map(Liquidity::BalancerWeighted));
             amms.extend(stable_orders.into_iter().map(Liquidity::BalancerStable));
         }
+        if let Some(koyo_v2_liquidity) = self.koyo_v2_liquidity.as_ref() {
+            let (stable_orders, weighted_orders) = koyo_v2_liquidity
+                .get_liquidity(&user_orders, at_block)
+                .await
+                .context("failed to get Balancer liquidity")?;
+
+            amms.extend(weighted_orders.into_iter().map(Liquidity::KoyoWeighted));
+            amms.extend(stable_orders.into_iter().map(Liquidity::KoyoStable));
+        }
+
         tracing::debug!("got {} AMMs", amms.len());
 
         Ok(amms)

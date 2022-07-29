@@ -35,6 +35,7 @@ use shared::{
     baseline_solver::BaseTokens,
     current_block::current_block_stream,
     http_solver::{DefaultHttpSolverApi, Objective, SolverConfig},
+    koyo_sor_api::DefaultKoyoSorApi,
     maintenance::ServiceMaintenance,
     metrics::{serve_metrics, DEFAULT_METRICS_PORT},
     network::network_name,
@@ -44,10 +45,11 @@ use shared::{
         competition::{CompetitionPriceEstimator, RacingCompetitionPriceEstimator},
         http::HttpPriceEstimator,
         instrumented::InstrumentedPriceEstimator,
+        koyo_sor::KoyoSor,
         native::NativePriceEstimator,
         native_price_cache::CachingNativePriceEstimator,
         sanitized::SanitizedPriceEstimator,
-        PriceEstimating, PriceEstimatorType, koyo_sor::KoyoSor,
+        PriceEstimating, PriceEstimatorType,
     },
     rate_limiter::RateLimiter,
     recent_block_cache::CacheConfig,
@@ -59,7 +61,7 @@ use shared::{
         BaselineSource, PoolAggregator,
     },
     token_info::{CachedTokenInfoFetcher, TokenInfoFetcher},
-    transport::{create_instrumented_transport, http::HttpTransport}, koyo_sor_api::DefaultKoyoSorApi,
+    transport::{create_instrumented_transport, http::HttpTransport},
 };
 use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio::task;

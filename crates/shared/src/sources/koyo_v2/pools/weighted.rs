@@ -2,7 +2,7 @@
 
 use super::{common, FactoryIndexing, PoolIndexing};
 use crate::{
-    sources::balancer_v2::swap::fixed_point::Bfp,
+    sources::balancer_v2::{pools::weighted::TokenState, swap::fixed_point::Bfp},
     sources::koyo_v2::graph_api::{PoolData, PoolType},
     Web3CallBatch,
 };
@@ -22,12 +22,6 @@ pub struct PoolInfo {
 pub struct PoolState {
     pub tokens: BTreeMap<H160, TokenState>,
     pub swap_fee: Bfp,
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct TokenState {
-    pub common: common::TokenState,
-    pub weight: Bfp,
 }
 
 impl PoolIndexing for PoolInfo {

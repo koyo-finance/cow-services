@@ -204,7 +204,6 @@ where
                 self.index_pool_creation(pool_created, block_created)
                     .await?;
             }
-
         }
 
         Ok(())

@@ -1,4 +1,5 @@
 pub mod balancer_v2;
+pub mod koyo_v2;
 pub mod order_converter;
 pub mod slippage;
 pub mod uniswap_v2;
@@ -29,6 +30,8 @@ pub enum Liquidity {
     ConstantProduct(ConstantProductOrder),
     BalancerWeighted(WeightedProductOrder),
     BalancerStable(StablePoolOrder),
+    KoyoWeighted(WeightedProductOrder),
+    KoyoStable(StablePoolOrder),
     LimitOrder(LimitOrder),
 }
 
@@ -39,6 +42,8 @@ impl Liquidity {
             Liquidity::ConstantProduct(amm) => vec![amm.tokens],
             Liquidity::BalancerWeighted(amm) => token_pairs(&amm.reserves),
             Liquidity::BalancerStable(amm) => token_pairs(&amm.reserves),
+            Liquidity::KoyoWeighted(amm) => token_pairs(&amm.reserves),
+            Liquidity::KoyoStable(amm) => token_pairs(&amm.reserves),
             Liquidity::LimitOrder(order) => TokenPair::new(order.sell_token, order.buy_token)
                 .map(|pair| vec![pair])
                 .unwrap_or_default(),

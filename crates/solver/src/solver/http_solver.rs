@@ -173,6 +173,8 @@ fn map_tokens_for_solver(orders: &[LimitOrder], liquidity: &[Liquidity]) -> Vec<
             Liquidity::ConstantProduct(amm) => token_set.extend(amm.tokens),
             Liquidity::BalancerWeighted(amm) => token_set.extend(amm.reserves.keys()),
             Liquidity::BalancerStable(amm) => token_set.extend(amm.reserves.keys()),
+            Liquidity::KoyoWeighted(amm) => token_set.extend(amm.reserves.keys()),
+            Liquidity::KoyoStable(amm) => token_set.extend(amm.reserves.keys()),
             Liquidity::LimitOrder(order) => token_set.extend([order.sell_token, order.buy_token]),
         }
     }
@@ -323,6 +325,49 @@ fn amm_models(liquidity: &[Liquidity], gas_model: &GasModel) -> BTreeMap<usize, 
                     }),
                     fee: amm.fee.clone(),
                     cost: gas_model.balancer_cost(),
+                    mandatory: false,
+                },
+                Liquidity::KoyoWeighted(amm) => AmmModel {
+                    parameters: AmmParameters::WeightedProduct(WeightedProductPoolParameters {
+                        reserves: amm
+                            .reserves
+                            .iter()
+                            .map(|(token, state)| {
+                                (
+                                    *token,
+                                    WeightedPoolTokenData {
+                                        balance: state.common.balance,
+                                        weight: BigRational::from(state.weight),
+                                    },
+                                )
+                            })
+                            .collect(),
+                    }),
+                    fee: amm.fee.into(),
+                    cost: gas_model.koyo_cost(),
+                    mandatory: false,
+                },
+                Liquidity::KoyoStable(amm) => AmmModel {
+                    parameters: AmmParameters::Stable(StablePoolParameters {
+                        reserves: amm
+                            .reserves
+                            .iter()
+                            .map(|(token, state)| (*token, state.balance))
+                            .collect(),
+                        scaling_rates: amm
+                            .reserves
+                            .iter()
+                            .map(|(token, state)| {
+                                Ok((*token, compute_scaling_rate(state.scaling_exponent)?))
+                            })
+                            .collect::<Result<_>>()
+                            .with_context(|| {
+                                format!("error converting stable pool to solver model: {:?}", amm)
+                            })?,
+                        amplification_parameter: amm.amplification_parameter.as_big_rational(),
+                    }),
+                    fee: amm.fee.clone(),
+                    cost: gas_model.koyo_cost(),
                     mandatory: false,
                 },
                 Liquidity::LimitOrder(_) => unreachable!("filtered out before"),

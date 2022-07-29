@@ -37,17 +37,17 @@ fn subtract_swap_fee_amount(amount: U256, swap_fee: Bfp) -> Result<U256, Error> 
 impl TokenState {
     /// Converts the stored balance into its internal representation as a
     /// Balancer fixed point number.
-    fn upscaled_balance(&self) -> Option<Bfp> {
+    pub fn upscaled_balance(&self) -> Option<Bfp> {
         self.upscale(self.balance)
     }
 
-    fn scaling_exponent_as_factor(&self) -> Option<U256> {
+    pub fn scaling_exponent_as_factor(&self) -> Option<U256> {
         U256::from(10).checked_pow(self.scaling_exponent.into())
     }
 
     /// Scales the input token amount to the value that is used by the Balancer
     /// contract to execute math operations.
-    fn upscale(&self, amount: U256) -> Option<Bfp> {
+    pub fn upscale(&self, amount: U256) -> Option<Bfp> {
         amount
             .checked_mul(self.scaling_exponent_as_factor()?)
             .map(Bfp::from_wei)
@@ -57,7 +57,7 @@ impl TokenState {
     /// representation for the same amount.
     /// Based on contract code here:
     /// https://github.com/balancer-labs/balancer-v2-monorepo/blob/c18ff2686c61a8cbad72cdcfc65e9b11476fdbc3/pkg/pool-utils/contracts/BasePool.sol#L560-L562
-    fn downscale_up(&self, amount: Bfp) -> Result<U256, Error> {
+    pub fn downscale_up(&self, amount: Bfp) -> Result<U256, Error> {
         let scaling_factor = self
             .scaling_exponent_as_factor()
             .ok_or(Error::MulOverflow)?;
@@ -66,7 +66,7 @@ impl TokenState {
 
     /// Similar to downscale up above, but rounded down, this is just checked div.
     /// https://github.com/balancer-labs/balancer-v2-monorepo/blob/c18ff2686c61a8cbad72cdcfc65e9b11476fdbc3/pkg/pool-utils/contracts/BasePool.sol#L542-L544
-    fn downscale_down(&self, amount: Bfp) -> Option<U256> {
+    pub fn downscale_down(&self, amount: Bfp) -> Option<U256> {
         amount
             .as_uint256()
             .checked_div(self.scaling_exponent_as_factor()?)

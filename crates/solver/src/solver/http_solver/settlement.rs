@@ -77,6 +77,12 @@ impl Execution {
                     Liquidity::BalancerStable(liquidity) => {
                         settlement.with_liquidity(liquidity, execution)
                     }
+                    Liquidity::KoyoWeighted(liquidity) => {
+                        settlement.with_liquidity(liquidity, execution)
+                    }
+                    Liquidity::KoyoStable(liquidity) => {
+                        settlement.with_liquidity(liquidity, execution)
+                    }
                     // This sort of liquidity gets used elsewhere
                     Liquidity::LimitOrder(_) => Ok(()),
                 }

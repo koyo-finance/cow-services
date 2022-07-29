@@ -23,8 +23,7 @@ fn main() {
     // EIP-1271 contract - SignatureValidator
     generate_contract("ERC1271SignatureValidator");
     generate_contract_with_config("WETH9", |builder| {
-        builder
-            .add_network_str("288", "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000")
+        builder.add_network_str("288", "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000")
     });
 
     generate_contract("GPv2AllowListAuthentication");
@@ -140,21 +139,19 @@ fn main() {
             .add_network_str("288", "0xeC9c70b34C4CF4b91cC057D726b114Ef3C7A1749")
     });
     generate_contract_with_config("KoyoV2Vault", |builder| {
-        builder
-            .contract_mod_override("koyo_v2_vault")
-            .add_network(
-                "288",
-                Network {
-                    address: addr("0x2A4409Cc7d2AE7ca1E3D915337D1B6Ba2350D6a3"),
-                    deployment_information: Some(DeploymentInformation::BlockNumber(668337)),
-                },
-            )
+        builder.contract_mod_override("koyo_v2_vault").add_network(
+            "288",
+            Network {
+                address: addr("0x2A4409Cc7d2AE7ca1E3D915337D1B6Ba2350D6a3"),
+                deployment_information: Some(DeploymentInformation::BlockNumber(668337)),
+            },
+        )
     });
     generate_contract_with_config("KoyoV2BasePool", |builder| {
         builder.contract_mod_override("koyo_v2_base_pool")
     });
     generate_contract_with_config("KoyoV2BasePoolFactory", |builder| {
-        builder.contract_mod_override("Koyo_v2_base_pool_factory")
+        builder.contract_mod_override("koyo_v2_base_pool_factory")
     });
     generate_contract_with_config("KoyoV2WeightedPool", |builder| {
         builder.contract_mod_override("koyo_v2_weighted_pool")
@@ -218,12 +215,10 @@ fn main() {
 
     // Addresses obtained from https://github.com/OolongSwap/oolongswap-deployments
     generate_contract_with_config("OolongSwapFactory", |builder| {
-        builder
-            .add_network_str("288", "0x7DDaF116889D655D1c486bEB95017a8211265d29")
+        builder.add_network_str("288", "0x7DDaF116889D655D1c486bEB95017a8211265d29")
     });
     generate_contract_with_config("OolongSwapRouter02", |builder| {
-        builder
-            .add_network_str("288", "0x17C83E2B96ACfb5190d63F5E46d93c107eC0b514")
+        builder.add_network_str("288", "0x17C83E2B96ACfb5190d63F5E46d93c107eC0b514")
     });
 }
 

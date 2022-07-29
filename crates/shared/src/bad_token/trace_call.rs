@@ -308,10 +308,7 @@ fn ensure_transaction_ok_and_get_gas(trace: &BlockTrace) -> Result<Result<U256, 
 mod tests {
     use super::*;
     use crate::{
-        bad_token::token_owner_finder::{
-            UniswapLikePairProviderFinder,
-        },
-        sources::{uniswap_v2},
+        bad_token::token_owner_finder::UniswapLikePairProviderFinder, sources::uniswap_v2,
         transport::create_env_test_transport,
     };
     use hex_literal::hex;

@@ -32,9 +32,8 @@ use crate::{
 use anyhow::Result;
 use clap::ArgEnum;
 use contracts::{
-    BalancerV2StablePoolFactory,
-    BalancerV2StablePoolFactoryV2, BalancerV2Vault, BalancerV2WeightedPool2TokensFactory,
-    BalancerV2WeightedPoolFactory,
+    BalancerV2StablePoolFactory, BalancerV2StablePoolFactoryV2, BalancerV2Vault,
+    BalancerV2WeightedPool2TokensFactory, BalancerV2WeightedPoolFactory,
 };
 use ethcontract::{Instance, H160, H256};
 use model::TokenPair;

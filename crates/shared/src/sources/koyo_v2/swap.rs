@@ -2,7 +2,6 @@ use crate::{
     baseline_solver::BaselineSolvable,
     sources::balancer_v2::swap::error::Error,
     sources::balancer_v2::swap::fixed_point::Bfp,
-    sources::balancer_v2::swap::math::BalU256,
     sources::balancer_v2::swap::{stable_math, weighted_math},
     sources::koyo_v2::pool_fetching::{StablePool, TokenState, WeightedPool, WeightedTokenState},
 };
@@ -26,46 +25,6 @@ fn subtract_swap_fee_amount(amount: U256, swap_fee: Bfp) -> Result<U256, Error> 
     let amount_without_fees = amount.sub(fee_amount)?;
     Ok(amount_without_fees.as_uint256())
 }
-
-impl TokenState {
-    /// Converts the stored balance into its internal representation as a
-    /// Koyo fixed point number.
-    fn upscaled_balance(&self) -> Option<Bfp> {
-        self.upscale(self.balance)
-    }
-
-    fn scaling_exponent_as_factor(&self) -> Option<U256> {
-        U256::from(10).checked_pow(self.scaling_exponent.into())
-    }
-
-    /// Scales the input token amount to the value that is used by the Koyo
-    /// contract to execute math operations.
-    fn upscale(&self, amount: U256) -> Option<Bfp> {
-        amount
-            .checked_mul(self.scaling_exponent_as_factor()?)
-            .map(Bfp::from_wei)
-    }
-
-    /// Returns the token amount corresponding to the internal Koyo
-    /// representation for the same amount.
-    /// Based on contract code here:
-    /// https://github.com/balancer-labs/balancer-v2-monorepo/blob/c18ff2686c61a8cbad72cdcfc65e9b11476fdbc3/pkg/pool-utils/contracts/BasePool.sol#L560-L562
-    fn downscale_up(&self, amount: Bfp) -> Result<U256, Error> {
-        let scaling_factor = self
-            .scaling_exponent_as_factor()
-            .ok_or(Error::MulOverflow)?;
-        amount.as_uint256().bdiv_up(scaling_factor)
-    }
-
-    /// Similar to downscale up above, but rounded down, this is just checked div.
-    /// https://github.com/balancer-labs/balancer-v2-monorepo/blob/c18ff2686c61a8cbad72cdcfc65e9b11476fdbc3/pkg/pool-utils/contracts/BasePool.sol#L542-L544
-    fn downscale_down(&self, amount: Bfp) -> Option<U256> {
-        amount
-            .as_uint256()
-            .checked_div(self.scaling_exponent_as_factor()?)
-    }
-}
-
 /// Weighted pool data as a reference used for computing input and output amounts.
 pub struct WeightedPoolRef<'a> {
     pub reserves: &'a HashMap<H160, WeightedTokenState>,

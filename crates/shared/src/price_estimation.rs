@@ -4,10 +4,10 @@ pub mod competition;
 pub mod gas;
 pub mod http;
 pub mod instrumented;
+pub mod koyo_sor;
 pub mod native;
 pub mod native_price_cache;
 pub mod sanitized;
-pub mod koyo_sor;
 
 use crate::{
     bad_token::BadTokenDetecting,

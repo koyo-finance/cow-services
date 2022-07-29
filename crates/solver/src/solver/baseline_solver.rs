@@ -144,6 +144,18 @@ impl BaselineSolver {
                             // TODO - https://github.com/cowprotocol/services/issues/80
                             tracing::debug!("Excluded stable pool from baseline solving.")
                         }
+                        Liquidity::KoyoWeighted(order) => {
+                            for tokens in token_pairs(&order.reserves) {
+                                amm_map.entry(tokens).or_default().push(Amm {
+                                    tokens,
+                                    order: AmmOrder::WeightedProduct(order.clone()),
+                                });
+                            }
+                        }
+                        Liquidity::KoyoStable(_order) => {
+                            // TODO - https://github.com/cowprotocol/services/issues/80
+                            tracing::debug!("Excluded stable pool from baseline solving.")
+                        }
                         Liquidity::LimitOrder(_) => {}
                     }
                     amm_map

@@ -200,11 +200,7 @@ impl Display for Arguments {
             self.balancer_pool_deny_list
         )?;
         writeln!(f, "koyo_factories: {:?}", self.koyo_factories)?;
-        writeln!(
-            f,
-            "koyo_pool_deny_list: {:?}",
-            self.koyo_pool_deny_list
-        )?;
+        writeln!(f, "koyo_pool_deny_list: {:?}", self.koyo_pool_deny_list)?;
         writeln!(
             f,
             "solver_competition_auth: {}",

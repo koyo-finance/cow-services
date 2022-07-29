@@ -4,8 +4,7 @@ use prometheus::{Gauge, HistogramOpts, HistogramVec, IntCounter, IntCounterVec, 
 use shared::{
     sources::{
         balancer_v2::pool_fetching::BalancerPoolCacheMetrics,
-        koyo_v2::pool_fetching::KoyoPoolCacheMetrics,
-        uniswap_v2::pool_cache::PoolCacheMetrics,
+        koyo_v2::pool_fetching::KoyoPoolCacheMetrics, uniswap_v2::pool_cache::PoolCacheMetrics,
     },
     transport::instrumented::TransportMetrics,
 };

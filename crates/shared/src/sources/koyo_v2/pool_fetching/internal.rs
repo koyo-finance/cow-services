@@ -1,9 +1,7 @@
 //! Module providing an internal interface to enable composing pool fetching
 //! strategies.
 
-use crate::{
-    maintenance::Maintaining, recent_block_cache::Block, sources::koyo_v2::pools::Pool,
-};
+use crate::{maintenance::Maintaining, recent_block_cache::Block, sources::koyo_v2::pools::Pool};
 use anyhow::Result;
 use ethcontract::H256;
 use model::TokenPair;

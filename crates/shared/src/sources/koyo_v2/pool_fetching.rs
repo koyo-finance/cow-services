@@ -32,8 +32,8 @@ use crate::{
 use anyhow::Result;
 use clap::ArgEnum;
 use contracts::{
-    BalancerV2StablePoolFactoryV2, BalancerV2Vault, BalancerV2WeightedPool2TokensFactory,
-    BalancerV2WeightedPoolFactory,
+    BalancerV2StablePoolFactoryV2, BalancerV2WeightedPool2TokensFactory,
+    BalancerV2WeightedPoolFactory, KoyoV2Vault,
 };
 use ethcontract::{Instance, H160, H256};
 use model::TokenPair;
@@ -43,9 +43,9 @@ use std::{
     sync::Arc,
 };
 
+pub use crate::sources::balancer_v2::pools::weighted::TokenState as WeightedTokenState;
 pub use common::TokenState;
 pub use stable::AmplificationParameter;
-pub use weighted::TokenState as WeightedTokenState;
 pub trait KoyoPoolEvaluating {
     fn properties(&self) -> CommonPoolState;
 }
@@ -151,9 +151,9 @@ pub enum KoyoFactoryKind {
     Stable,
 }
 
-/// All balancer related contracts that we expect to exist.
+/// All koyo related contracts that we expect to exist.
 pub struct KoyoContracts {
-    pub vault: BalancerV2Vault,
+    pub vault: KoyoV2Vault,
     pub weighted: BalancerV2WeightedPoolFactory,
     pub oracle: BalancerV2WeightedPool2TokensFactory,
     pub stable: BalancerV2StablePoolFactoryV2,
@@ -162,7 +162,7 @@ pub struct KoyoContracts {
 impl KoyoContracts {
     pub async fn new(web3: &Web3) -> Result<Self> {
         Ok(Self {
-            vault: BalancerV2Vault::deployed(web3).await?,
+            vault: KoyoV2Vault::deployed(web3).await?,
             weighted: BalancerV2WeightedPoolFactory::deployed(web3).await?,
             oracle: BalancerV2WeightedPool2TokensFactory::deployed(web3).await?,
             stable: BalancerV2StablePoolFactoryV2::deployed(web3).await?,
@@ -308,7 +308,7 @@ async fn create_aggregate_pool_fetcher(
 /// Helper method for creating a boxed `InternalPoolFetching` instance for the
 /// specified factory and parameters.
 fn create_internal_pool_fetcher<Factory>(
-    vault: BalancerV2Vault,
+    vault: KoyoV2Vault,
     factory: Factory,
     token_infos: Arc<dyn TokenInfoFetching>,
     factory_instance: &Instance<Web3Transport>,
