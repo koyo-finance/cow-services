@@ -20,21 +20,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Services image metadata
-        id: meta_services
+      - name: Orderbook image metadata
+        id: meta_orderbook
         uses: docker/metadata-action@v3
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/${{ github.repository }}-orderbook
           labels: |
             org.opencontainers.image.licenses=GPL-3.0-or-later
-      - name: Services image build
+      - name: Orderbook image build
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: docker/Dockerfile.binary
+          file: docker/Dockerfile.orderbook
           push: true
-          tags: ${{ steps.meta_services.outputs.tags }}
-          labels: ${{ steps.meta_services.outputs.labels }}
+          tags: ${{ steps.meta_orderbook.outputs.tags }}
+          labels: ${{ steps.meta_orderbooko.outputs.labels }}
 
       - name: Migration image metadata
         id: meta_migration
@@ -47,15 +47,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: docker/Dockerfile.migration
+          file: docker/gpv2/Dockerfile.migration
           push: true
           tags: ${{ steps.meta_migration.outputs.tags }}
           labels: ${{ steps.meta_migration.outputs.labels }}
 
-      - uses: cowprotocol/autodeploy-action@v1
-        if: ${{ github.ref == 'refs/heads/main' }}
-        with:
-          pods: dfusion-v2-api-rinkeby,dfusion-v2-solver-rinkeby,dfusion-v2-api-goerli,dfusion-v2-solver-goerli,dfusion-v2-api-mainnet,dfusion-v2-solver-mainnet,dfusion-v2-api-xdai,dfusion-v2-solver-xdai,dfusion-v2-solver-shadow,dfusion-v2-alerter-mainnet
-          tag: ${{ secrets.AUTODEPLOY_TAG }}
-          url: ${{ secrets.AUTODEPLOY_URL }}
-          token: ${{ secrets.AUTODEPLOY_TOKEN }}
