@@ -32,10 +32,7 @@ use solver::{
     orderbook::OrderBookApi,
     settlement_simulation::TenderlyApi,
     settlement_submission::{
-        submitter::{
-            custom_nodes_api::CustomNodesApi, flashbots_api::FlashbotsApi,
-            Strategy,
-        },
+        submitter::{custom_nodes_api::CustomNodesApi, Strategy},
         GlobalTxPool, SolutionSubmitter, StrategyArgs, TransactionStrategy,
     },
 };
@@ -307,18 +304,6 @@ async fn main() {
                     additional_tip_percentage_of_max_fee: 0.,
                     sub_tx_pool: submitted_transactions.add_sub_pool(Strategy::CustomNodes),
                 }))
-            }
-            TransactionStrategyArg::Flashbots => {
-                for flashbots_url in args.flashbots_api_url.clone() {
-                    transaction_strategies.push(TransactionStrategy::Flashbots(StrategyArgs {
-                        submit_api: Box::new(
-                            FlashbotsApi::new(client.clone(), flashbots_url).unwrap(),
-                        ),
-                        max_additional_tip: args.max_additional_flashbot_tip,
-                        additional_tip_percentage_of_max_fee: args.additional_tip_percentage,
-                        sub_tx_pool: submitted_transactions.add_sub_pool(Strategy::Flashbots),
-                    }))
-                }
             }
             TransactionStrategyArg::CustomNodes => {
                 assert!(

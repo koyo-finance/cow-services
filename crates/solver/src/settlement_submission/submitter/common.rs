@@ -21,6 +21,7 @@ impl Namespace<Web3Transport> for PrivateNetwork {
 
 impl PrivateNetwork {
     /// Function for sending raw signed transaction to private networks
+    #[allow(dead_code)]
     pub async fn submit_raw_transaction(
         &self,
         tx: TransactionBuilder<Web3Transport>,

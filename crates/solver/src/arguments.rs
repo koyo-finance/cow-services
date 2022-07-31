@@ -158,16 +158,6 @@ pub struct Arguments {
     #[clap(long, env)]
     pub tenderly_api_key: Option<String>,
 
-    /// The API endpoint of the Flashbots network for transaction submission.
-    /// Multiple values could be defined for different Flashbots endpoints (Flashbots Protect and Flashbots fast).
-    #[clap(
-        long,
-        env,
-        use_value_delimiter = true,
-        default_value = "https://rpc.flashbots.net"
-    )]
-    pub flashbots_api_url: Vec<Url>,
-
     /// The maximum time in seconds we spend trying to settle a transaction through the ethereum
     /// network before going to back to solving.
     #[clap(
@@ -176,15 +166,6 @@ pub struct Arguments {
         parse(try_from_str = shared::arguments::duration_from_seconds),
     )]
     pub max_submission_seconds: Duration,
-
-    /// Maximum additional tip in gwei that we are willing to give to flashbots above regular gas price estimation
-    #[clap(
-        long,
-        env,
-        default_value = "3",
-        parse(try_from_str = shared::arguments::wei_from_gwei)
-    )]
-    pub max_additional_flashbot_tip: f64,
 
     /// Amount of time to wait before retrying to submit the tx to the ethereum network
     #[clap(
@@ -286,18 +267,10 @@ impl std::fmt::Display for Arguments {
                 .map(|_| "SECRET")
                 .unwrap_or("None")
         )?;
-        write!(f, "flashbots_api_url: ")?;
-        display_list(self.flashbots_api_url.iter(), f)?;
-        writeln!(f)?;
         writeln!(
             f,
             "max_submission_seconds: {:?}",
             self.max_submission_seconds
-        )?;
-        writeln!(
-            f,
-            "max_additional_flashbots_tip: {}",
-            self.max_additional_flashbot_tip
         )?;
         writeln!(
             f,
@@ -340,7 +313,6 @@ impl std::fmt::Display for Arguments {
 #[clap(rename_all = "verbatim")]
 pub enum TransactionStrategyArg {
     PublicMempool,
-    Flashbots,
     CustomNodes,
     DryRun,
 }

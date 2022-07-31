@@ -72,25 +72,6 @@ pub struct Arguments {
     )]
     pub additional_tip_percentage: f64,
 
-    /// The API endpoint of the Flashbots network for transaction submission.
-    /// Multiple values could be defined for different Flashbots endpoints (Flashbots Protect and Flashbots fast).
-    #[clap(
-        long,
-        env,
-        use_value_delimiter = true,
-        default_value = "https://rpc.flashbots.net"
-    )]
-    pub flashbots_api_url: Vec<Url>,
-
-    /// Maximum additional tip in gwei that we are willing to give to flashbots above regular gas price estimation
-    #[clap(
-        long,
-        env,
-        default_value = "3",
-        parse(try_from_str = shared::arguments::wei_from_gwei)
-    )]
-    pub max_additional_flashbot_tip: f64,
-
     /// Which access list estimators to use. Multiple estimators are used in sequence if a previous one
     /// fails. Individual estimators might support different networks.
     /// `Tenderly`: supports every network.
@@ -180,14 +161,6 @@ impl std::fmt::Display for Arguments {
             f,
             "additional_tip_percentage: {}",
             self.additional_tip_percentage
-        )?;
-        write!(f, "flashbots_api_url: ")?;
-        display_list(self.flashbots_api_url.iter(), f)?;
-        writeln!(f)?;
-        writeln!(
-            f,
-            "max_additional_flashbots_tip: {}",
-            self.max_additional_flashbot_tip
         )?;
         writeln!(
             f,

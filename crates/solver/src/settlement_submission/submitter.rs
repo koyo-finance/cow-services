@@ -15,7 +15,6 @@
 
 mod common;
 pub mod custom_nodes_api;
-pub mod flashbots_api;
 
 use super::{SubTxPoolRef, SubmissionError, ESTIMATE_GAS_LIMIT_FACTOR};
 use crate::{
@@ -61,7 +60,6 @@ pub enum SubmissionLoopStatus {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Strategy {
-    Flashbots,
     CustomNodes,
 }
 
@@ -91,7 +89,7 @@ pub struct TransactionHandle {
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait TransactionSubmitting: Send + Sync {
-    /// Submits transation to the specific network (public mempool, flashbots...).
+    /// Submits transation to the specific network (public mempool...).
     /// Returns transaction handle
     async fn submit_transaction(
         &self,
@@ -641,104 +639,8 @@ fn track_mined_transactions(submitter: &str) {
 
 #[cfg(test)]
 mod tests {
-
-    use std::sync::Arc;
-
-    use crate::settlement_access_list::{create_priority_estimator, AccessListEstimatorType};
-
-    use super::super::submitter::flashbots_api::FlashbotsApi;
     use super::*;
-    use ethcontract::PrivateKey;
-    use gas_estimation::blocknative::BlockNative;
-    use reqwest::Client;
     use shared::gas_price_estimation::FakeGasPriceEstimator;
-    use shared::transport::create_env_test_transport;
-    use tracing::level_filters::LevelFilter;
-
-    #[tokio::test]
-    #[ignore]
-    async fn flashbots_mainnet_settlement() {
-        shared::tracing::initialize(
-            "solver=debug,shared=debug,shared::transport::http=info",
-            LevelFilter::OFF,
-        );
-
-        let web3 = Web3::new(create_env_test_transport());
-        let chain_id = web3.eth().chain_id().await.unwrap().as_u64();
-        assert_eq!(chain_id, 1);
-        let private_key: PrivateKey = std::env::var("PRIVATE_KEY").unwrap().parse().unwrap();
-        let account = Account::Offline(private_key, Some(chain_id));
-        let contract = crate::get_settlement_contract(&web3).await.unwrap();
-        let flashbots_api = FlashbotsApi::new(Client::new(), "https://rpc.flashbots.net").unwrap();
-        let mut header = reqwest::header::HeaderMap::new();
-        header.insert(
-            "AUTHORIZATION",
-            reqwest::header::HeaderValue::from_str(&std::env::var("BLOCKNATIVE_API_KEY").unwrap())
-                .unwrap(), //or replace with api_key
-        );
-        let gas_price_estimator = BlockNative::new(
-            shared::gas_price_estimation::Client(reqwest::Client::new()),
-            header,
-        )
-        .await
-        .unwrap();
-        let gas_price_estimator = SubmitterGasPriceEstimator {
-            inner: &gas_price_estimator,
-            max_additional_tip: Some(3.0),
-            gas_price_cap: 100e9,
-            additional_tip_percentage_of_max_fee: Some(0.05),
-            pending_gas_price: None,
-        };
-        let access_list_estimator = Arc::new(
-            create_priority_estimator(
-                &Client::new(),
-                &web3,
-                &[AccessListEstimatorType::Web3],
-                None,
-                None,
-                "1".to_string(),
-            )
-            .await
-            .unwrap(),
-        );
-
-        let settlement = Settlement::new(Default::default());
-        let gas_estimate =
-            crate::settlement_simulation::simulate_and_estimate_gas_at_current_block(
-                std::iter::once((account.clone(), settlement.clone(), None)),
-                &contract,
-                &web3,
-                Default::default(),
-            )
-            .await
-            .unwrap()
-            .into_iter()
-            .next()
-            .unwrap()
-            .unwrap();
-
-        let submitted_transactions = Default::default();
-
-        let submitter = Submitter::new(
-            &contract,
-            &account,
-            &flashbots_api,
-            &gas_price_estimator,
-            access_list_estimator.as_ref(),
-            submitted_transactions,
-        )
-        .unwrap();
-
-        let params = SubmitterParams {
-            target_confirm_time: Duration::from_secs(0),
-            gas_estimate,
-            deadline: Some(Instant::now() + Duration::from_secs(90)),
-            retry_interval: Duration::from_secs(5),
-            network_id: "1".to_string(),
-        };
-        let result = submitter.submit(settlement, params).await;
-        tracing::debug!("finished with result {:?}", result);
-    }
 
     #[test]
     fn gas_price_estimator_no_tip_test() {
