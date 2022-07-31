@@ -36,6 +36,22 @@ jobs:
           tags: ${{ steps.meta_orderbook.outputs.tags }}
           labels: ${{ steps.meta_orderbooko.outputs.labels }}
 
+      - name: Solver image metadata
+        id: meta_solver
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/${{ github.repository }}-solver
+          labels: |
+            org.opencontainers.image.licenses=GPL-3.0-or-later
+      - name: Solver image build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker/Dockerfile.solver
+          push: true
+          tags: ${{ steps.meta_solver.outputs.tags }}
+          labels: ${{ steps.meta_solver.outputs.labels }}
+
       - name: Migration image metadata
         id: meta_migration
         uses: docker/metadata-action@v3

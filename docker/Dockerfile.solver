@@ -1,0 +1,27 @@
+FROM docker.io/rust:1-slim-bullseye as cargo-build
+WORKDIR /src/
+
+# Install dependencies
+RUN apt-get update && apt-get install -y git libssl-dev pkg-config
+
+# Copy and Build Code
+COPY . .
+RUN CARGO_PROFILE_RELEASE_DEBUG=1 cargo build --release
+
+# Extract Binary
+FROM docker.io/debian:bullseye-slim
+
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
+# Handle signal handlers properly
+RUN apt-get update && apt-get install -y ca-certificates && apt-get clean
+COPY --from=cargo-build /src/target/release/solver /usr/local/bin/solver
+
+# Metrics API
+EXPOSE 9587/tcp
+EXPOSE 9587/udp
+
+ENTRYPOINT ["/tini", "--"]
+CMD ["/usr/local/bin/solver"]
