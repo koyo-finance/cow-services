@@ -1,5 +1,5 @@
 contracts:
-	cargo run -p contracts --features=bin 
+	cargo run -p contracts --features=bin
 
 orderbook-boba-debug:
 	cargo run --bin orderbook -- \

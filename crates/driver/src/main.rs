@@ -16,7 +16,7 @@ use solver::{
     metrics::Metrics,
     settlement_submission::{
         submitter::{
-            custom_nodes_api::CustomNodesApi, eden_api::EdenApi, flashbots_api::FlashbotsApi,
+            custom_nodes_api::CustomNodesApi, flashbots_api::FlashbotsApi,
             Strategy,
         },
         GlobalTxPool, SolutionSubmitter, StrategyArgs, TransactionStrategy,
@@ -162,21 +162,6 @@ async fn build_submitter(common: &CommonComponents, args: &Arguments) -> Arc<Sol
                     max_additional_tip: 0.,
                     additional_tip_percentage_of_max_fee: 0.,
                     sub_tx_pool: submitted_transactions.add_sub_pool(Strategy::CustomNodes),
-                }))
-            }
-            TransactionStrategyArg::Eden => {
-                transaction_strategies.push(TransactionStrategy::Eden(StrategyArgs {
-                    submit_api: Box::new(
-                        EdenApi::new(
-                            client.clone(),
-                            args.eden_api_url.clone(),
-                            submitted_transactions.clone(),
-                        )
-                        .unwrap(),
-                    ),
-                    max_additional_tip: args.max_additional_eden_tip,
-                    additional_tip_percentage_of_max_fee: args.additional_tip_percentage,
-                    sub_tx_pool: submitted_transactions.add_sub_pool(Strategy::Eden),
                 }))
             }
             TransactionStrategyArg::Flashbots => {

@@ -15,7 +15,6 @@
 
 mod common;
 pub mod custom_nodes_api;
-pub mod eden_api;
 pub mod flashbots_api;
 
 use super::{SubTxPoolRef, SubmissionError, ESTIMATE_GAS_LIMIT_FACTOR};
@@ -62,7 +61,6 @@ pub enum SubmissionLoopStatus {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Strategy {
-    Eden,
     Flashbots,
     CustomNodes,
 }
@@ -93,7 +91,7 @@ pub struct TransactionHandle {
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait TransactionSubmitting: Send + Sync {
-    /// Submits transation to the specific network (public mempool, eden, flashbots...).
+    /// Submits transation to the specific network (public mempool, flashbots...).
     /// Returns transaction handle
     async fn submit_transaction(
         &self,

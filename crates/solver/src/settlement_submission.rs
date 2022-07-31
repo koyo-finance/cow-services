@@ -115,7 +115,6 @@ pub struct StrategyArgs {
     pub sub_tx_pool: SubTxPoolRef,
 }
 pub enum TransactionStrategy {
-    Eden(StrategyArgs),
     Flashbots(StrategyArgs),
     CustomNodes(StrategyArgs),
     DryRun,
@@ -124,7 +123,6 @@ pub enum TransactionStrategy {
 impl TransactionStrategy {
     pub fn strategy_args(&self) -> Option<&StrategyArgs> {
         match &self {
-            TransactionStrategy::Eden(args) => Some(args),
             TransactionStrategy::Flashbots(args) => Some(args),
             TransactionStrategy::CustomNodes(args) => Some(args),
             TransactionStrategy::DryRun => None,
@@ -160,7 +158,7 @@ impl SolutionSubmitter {
                 .map(|strategy| {
                     async {
                         match &*strategy {
-                            TransactionStrategy::Eden(_) | TransactionStrategy::Flashbots(_) => {
+                            TransactionStrategy::Flashbots(_) => {
                                 if !matches!(account, Account::Offline(..)) {
                                     return Err(SubmissionError::from(anyhow!(
                                         "Submission to private network requires offline account for signing"
@@ -383,9 +381,6 @@ mod tests {
 
     #[test]
     fn transaction_strategy_test() {
-        let strategy = TransactionStrategy::Eden(StrategyArgs::default());
-        assert!(strategy.strategy_args().is_some());
-
         let strategy = TransactionStrategy::Flashbots(StrategyArgs::default());
         assert!(strategy.strategy_args().is_some());
 

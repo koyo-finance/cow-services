@@ -116,7 +116,7 @@ pub struct Arguments {
     #[clap(
         long,
         env,
-        default_value = "https://tokens.coingecko.com/uniswap/all.json"
+        default_value = "https://tokens.koyo.finance/all.json"
     )]
     pub market_makable_token_list: String,
 
@@ -158,10 +158,6 @@ pub struct Arguments {
     #[clap(long, env)]
     pub tenderly_api_key: Option<String>,
 
-    /// The API endpoint of the Eden network for transaction submission.
-    #[clap(long, env, default_value = "https://api.edennetwork.io/v1/rpc")]
-    pub eden_api_url: Url,
-
     /// The API endpoint of the Flashbots network for transaction submission.
     /// Multiple values could be defined for different Flashbots endpoints (Flashbots Protect and Flashbots fast).
     #[clap(
@@ -171,15 +167,6 @@ pub struct Arguments {
         default_value = "https://rpc.flashbots.net"
     )]
     pub flashbots_api_url: Vec<Url>,
-
-    /// Maximum additional tip in gwei that we are willing to give to eden above regular gas price estimation
-    #[clap(
-        long,
-        env,
-        default_value = "3",
-        parse(try_from_str = shared::arguments::wei_from_gwei)
-    )]
-    pub max_additional_eden_tip: f64,
 
     /// The maximum time in seconds we spend trying to settle a transaction through the ethereum
     /// network before going to back to solving.
@@ -299,15 +286,9 @@ impl std::fmt::Display for Arguments {
                 .map(|_| "SECRET")
                 .unwrap_or("None")
         )?;
-        writeln!(f, "eden_api_url: {}", self.eden_api_url)?;
         write!(f, "flashbots_api_url: ")?;
         display_list(self.flashbots_api_url.iter(), f)?;
         writeln!(f)?;
-        writeln!(
-            f,
-            "max_additional_eden_tip: {}",
-            self.max_additional_eden_tip
-        )?;
         writeln!(
             f,
             "max_submission_seconds: {:?}",
@@ -359,7 +340,6 @@ impl std::fmt::Display for Arguments {
 #[clap(rename_all = "verbatim")]
 pub enum TransactionStrategyArg {
     PublicMempool,
-    Eden,
     Flashbots,
     CustomNodes,
     DryRun,

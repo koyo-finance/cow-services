@@ -63,19 +63,6 @@ pub struct Arguments {
     )]
     pub transaction_strategy: Vec<TransactionStrategyArg>,
 
-    /// The API endpoint of the Eden network for transaction submission.
-    #[clap(long, env, default_value = "https://api.edennetwork.io/v1/rpc")]
-    pub eden_api_url: Url,
-
-    /// Maximum additional tip in gwei that we are willing to give to eden above regular gas price estimation
-    #[clap(
-        long,
-        env,
-        default_value = "3",
-        parse(try_from_str = shared::arguments::wei_from_gwei)
-    )]
-    pub max_additional_eden_tip: f64,
-
     /// Additional tip in percentage of max_fee_per_gas we are willing to give to miners above regular gas price estimation
     #[clap(
         long,
@@ -189,12 +176,6 @@ impl std::fmt::Display for Arguments {
         display_list(self.transaction_submission_nodes.iter(), f)?;
         writeln!(f)?;
         writeln!(f, "transaction_strategy: {:?}", self.transaction_strategy)?;
-        writeln!(f, "eden_api_url: {}", self.eden_api_url)?;
-        writeln!(
-            f,
-            "max_additional_eden_tip: {}",
-            self.max_additional_eden_tip
-        )?;
         writeln!(
             f,
             "additional_tip_percentage: {}",
