@@ -16,10 +16,6 @@ pub struct Arguments {
     #[clap(long, env, default_value = "http://localhost:8080")]
     pub orderbook_url: Url,
 
-    /// The API endpoint to call the mip solver
-    #[clap(long, env, default_value = "http://localhost:8000")]
-    pub mip_solver_url: Url,
-
     /// The API endpoint to call the mip v2 solver
     #[clap(long, env, default_value = "http://localhost:8000")]
     pub quasimodo_solver_url: Url,
@@ -231,7 +227,6 @@ impl std::fmt::Display for Arguments {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.shared)?;
         writeln!(f, "orderbook_url: {}", self.orderbook_url)?;
-        writeln!(f, "mip_solver_url: {}", self.mip_solver_url)?;
         writeln!(f, "quasimodo_solver_url: {}", self.quasimodo_solver_url)?;
         writeln!(f, "balancer_sor_url: {}", self.balancer_sor_url)?;
         writeln!(f, "solver_account: {:?}", self.solver_account)?;
