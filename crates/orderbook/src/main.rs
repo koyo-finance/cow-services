@@ -34,16 +34,13 @@ use shared::{
     balancer_sor_api::DefaultBalancerSorApi,
     baseline_solver::BaseTokens,
     current_block::current_block_stream,
-    http_solver::{DefaultHttpSolverApi, Objective, SolverConfig},
     koyo_sor_api::DefaultKoyoSorApi,
     maintenance::ServiceMaintenance,
     metrics::{serve_metrics, DEFAULT_METRICS_PORT},
-    network::network_name,
     price_estimation::{
         balancer_sor::BalancerSor,
         baseline::BaselinePriceEstimator,
         competition::{CompetitionPriceEstimator, RacingCompetitionPriceEstimator},
-        http::HttpPriceEstimator,
         instrumented::InstrumentedPriceEstimator,
         koyo_sor::KoyoSor,
         native::NativePriceEstimator,
@@ -116,7 +113,6 @@ async fn main() {
         .version()
         .await
         .expect("Failed to retrieve network version ID");
-    let network_name = network_name(&network, chain_id);
 
     let signature_validator = Arc::new(Web3SignatureValidator::new(web3.clone()));
 
@@ -332,31 +328,6 @@ async fn main() {
                     format!("{}_estimator", &name),
                 ))
             };
-            let create_http_estimator = |name, base| -> Box<dyn PriceEstimating> {
-                Box::new(HttpPriceEstimator::new(
-                    Arc::new(DefaultHttpSolverApi {
-                        name,
-                        network_name: network_name.to_string(),
-                        chain_id,
-                        base,
-                        client: client.clone(),
-                        config: SolverConfig {
-                            use_internal_buffers: Some(args.shared.quasimodo_uses_internal_buffers),
-                            objective: Some(Objective::SurplusFeesCosts),
-                            ..Default::default()
-                        },
-                    }),
-                    pool_fetcher.clone(),
-                    balancer_pool_fetcher.clone(),
-                    koyo_pool_fetcher.clone(),
-                    token_info_fetcher.clone(),
-                    gas_price_estimator.clone(),
-                    native_token.address(),
-                    base_tokens.clone(),
-                    network_name.to_string(),
-                    rate_limiter(estimator.name()),
-                ))
-            };
             let instance: Box<dyn PriceEstimating> = match estimator {
                 PriceEstimatorType::Baseline => Box::new(BaselinePriceEstimator::new(
                     pool_fetcher.clone(),
@@ -366,12 +337,6 @@ async fn main() {
                     native_token_price_estimation_amount,
                     rate_limiter(estimator.name()),
                 )),
-                PriceEstimatorType::Quasimodo => create_http_estimator(
-                    "quasimodo-price-estimator".to_string(),
-                    args.quasimodo_solver_url.clone().expect(
-                        "quasimodo solver url is required when using quasimodo price estimation",
-                    ),
-                ),
                 PriceEstimatorType::BalancerSor => Box::new(BalancerSor::new(
                     balancer_sor_api.clone().expect("trying to create BalancerSor price estimator but didn't get balancer sor url"),
                     rate_limiter(estimator.name()),

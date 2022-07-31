@@ -139,7 +139,6 @@ pub type SettlementWithError = (
 pub enum SolverType {
     Naive,
     Baseline,
-    Quasimodo,
     BalancerSor,
 }
 
@@ -205,7 +204,6 @@ pub fn create(
     solvers: Vec<(Account, SolverType)>,
     base_tokens: Arc<BaseTokens>,
     native_token: H160,
-    quasimodo_solver_url: Url,
     balancer_sor_url: Url,
     settlement_contract: &GPv2Settlement,
     vault_contract: Option<&BalancerV2Vault>,
@@ -214,7 +212,6 @@ pub fn create(
     chain_id: u64,
     client: Client,
     solver_metrics: Arc<dyn SolverMetrics>,
-    quasimodo_uses_internal_buffers: bool,
     external_solvers: Vec<ExternalSolverArg>,
 ) -> Result<Solvers> {
     // Tiny helper function to help out with type inference. Otherwise, all
@@ -261,15 +258,6 @@ pub fn create(
                 SolverType::Baseline => {
                     Ok(shared(BaselineSolver::new(account, base_tokens.clone())))
                 }
-                SolverType::Quasimodo => Ok(shared(create_http_solver(
-                    account,
-                    quasimodo_solver_url.clone(),
-                    "Quasimodo".to_string(),
-                    SolverConfig {
-                        use_internal_buffers: Some(quasimodo_uses_internal_buffers),
-                        ..Default::default()
-                    },
-                ))),
                 SolverType::BalancerSor => Ok(shared(SingleOrderSolver::new(
                     BalancerSorSolver::new(
                         account,

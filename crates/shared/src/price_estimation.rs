@@ -32,7 +32,6 @@ use thiserror::Error;
 #[clap(rename_all = "verbatim")]
 pub enum PriceEstimatorType {
     Baseline,
-    Quasimodo,
     BalancerSor,
     KoyoSor,
 }

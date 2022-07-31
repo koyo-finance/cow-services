@@ -141,10 +141,6 @@ pub struct Arguments {
     #[clap(long, env)]
     pub kyo_fee_factors: Option<SubsidyTiers>,
 
-    /// The API endpoint to call the mip v2 solver for price estimation
-    #[clap(long, env)]
-    pub quasimodo_solver_url: Option<Url>,
-
     /// How long cached native prices stay valid.
     #[clap(
         long,
@@ -272,9 +268,6 @@ impl std::fmt::Display for Arguments {
             self.partner_additional_fee_factors
         )?;
         writeln!(f, "kyo_fee_factors: {:?}", self.kyo_fee_factors)?;
-        write!(f, "quasimodo_solver_url: ")?;
-        display_option(&self.quasimodo_solver_url, f)?;
-        writeln!(f)?;
         writeln!(
             f,
             "native_price_cache_max_age_secs: {:?}",

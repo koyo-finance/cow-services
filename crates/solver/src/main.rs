@@ -235,7 +235,6 @@ async fn main() {
         solvers,
         base_tokens.clone(),
         native_token_contract.address(),
-        args.quasimodo_solver_url,
         args.balancer_sor_url,
         &settlement_contract,
         vault_contract.as_ref(),
@@ -244,7 +243,6 @@ async fn main() {
         chain_id,
         client.clone(),
         metrics.clone(),
-        args.shared.quasimodo_uses_internal_buffers,
         args.external_solvers.unwrap_or_default(),
     )
     .expect("failure creating solvers");

@@ -94,10 +94,6 @@ pub struct Arguments {
     )]
     pub block_stream_poll_interval_seconds: Duration,
 
-    /// If quasimodo should use internal buffers to improve solution quality.
-    #[clap(long, env)]
-    pub quasimodo_uses_internal_buffers: bool,
-
     /// The Balancer V2 factories to consider for indexing liquidity. Allows
     /// specific pool kinds to be disabled via configuration. Will use all
     /// supported Balancer V2 factory kinds if not specified.
@@ -179,11 +175,6 @@ impl Display for Arguments {
             self.block_stream_poll_interval_seconds
         )?;
         writeln!(f)?;
-        writeln!(
-            f,
-            "quasimodo_uses_internal_buffers: {}",
-            self.quasimodo_uses_internal_buffers
-        )?;
         writeln!(f, "balancer_factories: {:?}", self.balancer_factories)?;
         writeln!(
             f,

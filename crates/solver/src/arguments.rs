@@ -16,10 +16,6 @@ pub struct Arguments {
     #[clap(long, env, default_value = "http://localhost:8080")]
     pub orderbook_url: Url,
 
-    /// The API endpoint to call the mip v2 solver
-    #[clap(long, env, default_value = "http://localhost:8000")]
-    pub quasimodo_solver_url: Url,
-
     /// The API endpoint for the Balancer SOR API for solving.
     #[clap(long, env, default_value = "http://localhost:8000")]
     pub balancer_sor_url: Url,
@@ -109,11 +105,7 @@ pub struct Arguments {
 
     /// The list of tokens our settlement contract is willing to buy when settling trades
     /// without external liquidity
-    #[clap(
-        long,
-        env,
-        default_value = "https://tokens.koyo.finance/all.json"
-    )]
+    #[clap(long, env, default_value = "https://tokens.koyo.finance/all.json")]
     pub market_makable_token_list: String,
 
     /// The maximum gas price in Gwei the solver is willing to pay in a settlement.
@@ -227,7 +219,6 @@ impl std::fmt::Display for Arguments {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.shared)?;
         writeln!(f, "orderbook_url: {}", self.orderbook_url)?;
-        writeln!(f, "quasimodo_solver_url: {}", self.quasimodo_solver_url)?;
         writeln!(f, "balancer_sor_url: {}", self.balancer_sor_url)?;
         writeln!(f, "solver_account: {:?}", self.solver_account)?;
         writeln!(f, "target_confirm_time: {:?}", self.target_confirm_time)?;

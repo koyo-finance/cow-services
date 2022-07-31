@@ -160,7 +160,8 @@ impl SolutionSubmitter {
                             TransactionStrategy::DryRun => unreachable!(),
                         };
 
-                        let strategy_args = strategy.strategy_args().expect("unreachable code executed");
+                        let strategy_args =
+                            strategy.strategy_args().expect("unreachable code executed");
                         let params = SubmitterParams {
                             target_confirm_time: self.target_confirm_time,
                             gas_estimate,
@@ -171,7 +172,9 @@ impl SolutionSubmitter {
                         let gas_price_estimator = SubmitterGasPriceEstimator {
                             inner: self.gas_price_estimator.as_ref(),
                             gas_price_cap: self.gas_price_cap,
-                            additional_tip_percentage_of_max_fee: Some(strategy_args.additional_tip_percentage_of_max_fee),
+                            additional_tip_percentage_of_max_fee: Some(
+                                strategy_args.additional_tip_percentage_of_max_fee,
+                            ),
                             max_additional_tip: Some(strategy_args.max_additional_tip),
                             pending_gas_price: None,
                         };
