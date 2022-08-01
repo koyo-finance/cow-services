@@ -27,5 +27,6 @@ pub async fn get_settlement_contract(web3: &Web3) -> Result<contracts::GPv2Settl
 }
 
 pub fn into_gas_price(gas_price: &gas_estimation::GasPrice1559) -> ethcontract::GasPrice {
-    (gas_price.max_fee_per_gas + gas_price.max_priority_fee_per_gas).into()
+    // (gas_price.max_fee_per_gas + gas_price.max_priority_fee_per_gas).into()
+    (gas_price.max_fee_per_gas).into()
 }
