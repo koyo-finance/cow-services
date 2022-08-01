@@ -2,13 +2,14 @@ use crate::interactions::allowances::AllowanceManager;
 use crate::metrics::SolverMetrics;
 use crate::settlement::external_prices::ExternalPrices;
 use crate::solver::balancer_sor_solver::BalancerSorSolver;
+use crate::solver::koyo_sor_solver::KoyoSorSolver;
 use crate::{
     liquidity::{LimitOrder, Liquidity},
     settlement::Settlement,
 };
 use anyhow::{anyhow, Context, Result};
 use baseline_solver::BaselineSolver;
-use contracts::{BalancerV2Vault, GPv2Settlement};
+use contracts::{BalancerV2Vault, GPv2Settlement, KoyoV2Vault};
 use ethcontract::errors::ExecutionError;
 use ethcontract::{Account, PrivateKey, H160, U256};
 use http_solver::{buffers::BufferRetriever, HttpSolver};
@@ -18,6 +19,7 @@ use num::BigRational;
 use reqwest::{Client, Url};
 use shared::balancer_sor_api::DefaultBalancerSorApi;
 use shared::http_solver::{DefaultHttpSolverApi, SolverConfig};
+use shared::koyo_sor_api::DefaultKoyoSorApi;
 use shared::{
     baseline_solver::BaseTokens, conversions::U256Ext, token_info::TokenInfoFetching, Web3,
 };
@@ -32,6 +34,7 @@ use web3::types::AccessList;
 pub mod balancer_sor_solver;
 mod baseline_solver;
 pub mod http_solver;
+pub mod koyo_sor_solver;
 mod naive_solver;
 mod single_order_solver;
 
@@ -140,6 +143,7 @@ pub enum SolverType {
     Naive,
     Baseline,
     BalancerSor,
+    KoyoSor,
 }
 
 #[derive(Debug, Clone)]
@@ -205,8 +209,10 @@ pub fn create(
     base_tokens: Arc<BaseTokens>,
     native_token: H160,
     balancer_sor_url: Url,
+    koyo_sor_url: Url,
+    balancer_vault_contract: Option<&BalancerV2Vault>,
+    koyo_vault_contract: Option<&KoyoV2Vault>,
     settlement_contract: &GPv2Settlement,
-    vault_contract: Option<&BalancerV2Vault>,
     token_info_fetcher: Arc<dyn TokenInfoFetching>,
     network_id: String,
     chain_id: u64,
@@ -261,15 +267,33 @@ pub fn create(
                 SolverType::BalancerSor => Ok(shared(SingleOrderSolver::new(
                     BalancerSorSolver::new(
                         account,
-                        vault_contract
+                        balancer_vault_contract
                             .ok_or_else(|| {
-                                anyhow!("missing Balancer Vault deployment for SOR solver")
+                                anyhow!("missing Balancer Vault deployment for Balancer SOR solver")
                             })?
                             .clone(),
                         settlement_contract.clone(),
                         Arc::new(DefaultBalancerSorApi::new(
                             client.clone(),
                             balancer_sor_url.clone(),
+                            chain_id,
+                        )?),
+                        allowance_mananger.clone(),
+                    ),
+                    solver_metrics.clone(),
+                ))),
+                SolverType::KoyoSor => Ok(shared(SingleOrderSolver::new(
+                    KoyoSorSolver::new(
+                        account,
+                        koyo_vault_contract
+                            .ok_or_else(|| {
+                                anyhow!("missing Balancer Vault deployment for Koyo SOR solver")
+                            })?
+                            .clone(),
+                        settlement_contract.clone(),
+                        Arc::new(DefaultKoyoSorApi::new(
+                            client.clone(),
+                            koyo_sor_url.clone(),
                             chain_id,
                         )?),
                         allowance_mananger.clone(),

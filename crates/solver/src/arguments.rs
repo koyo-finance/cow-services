@@ -20,6 +20,10 @@ pub struct Arguments {
     #[clap(long, env, default_value = "http://localhost:8000")]
     pub balancer_sor_url: Url,
 
+    /// The API endpoint for the Koyo SOR API for solving.
+    #[clap(long, env, default_value = "http://localhost:8000")]
+    pub koyo_sor_url: Url,
+
     /// The account used by the driver to sign transactions. This can be either
     /// a 32-byte private key for offline signing, or a 20-byte Ethereum address
     /// for signing with a local node account.
@@ -220,6 +224,7 @@ impl std::fmt::Display for Arguments {
         write!(f, "{}", self.shared)?;
         writeln!(f, "orderbook_url: {}", self.orderbook_url)?;
         writeln!(f, "balancer_sor_url: {}", self.balancer_sor_url)?;
+        writeln!(f, "koyo_sor_url: {}", self.koyo_sor_url)?;
         writeln!(f, "solver_account: {:?}", self.solver_account)?;
         writeln!(f, "target_confirm_time: {:?}", self.target_confirm_time)?;
         writeln!(f, "settle_interval: {:?}", self.settle_interval)?;

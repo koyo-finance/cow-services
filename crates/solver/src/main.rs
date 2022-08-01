@@ -1,6 +1,6 @@
 use anyhow::Context;
 use clap::{ArgEnum, Parser};
-use contracts::{BalancerV2Vault, IUniswapLikeRouter, WETH9};
+use contracts::{BalancerV2Vault, IUniswapLikeRouter, KoyoV2Vault, WETH9};
 use num::rational::Ratio;
 use shared::{
     baseline_solver::BaseTokens,
@@ -69,10 +69,13 @@ async fn main() {
         .await
         .expect("failed to get network id");
     let network_name = network_name(&network_id, chain_id);
+
+    let balancer_vault_contract = BalancerV2Vault::deployed(&web3).await.ok();
+    let koyo_vault_contract = KoyoV2Vault::deployed(&web3).await.ok();
+
     let settlement_contract = solver::get_settlement_contract(&web3)
         .await
         .expect("couldn't load deployed settlement");
-    let vault_contract = BalancerV2Vault::deployed(&web3).await.ok();
     let native_token_contract = WETH9::deployed(&web3)
         .await
         .expect("couldn't load deployed native token");
@@ -236,8 +239,10 @@ async fn main() {
         base_tokens.clone(),
         native_token_contract.address(),
         args.balancer_sor_url,
+        args.koyo_sor_url,
+        balancer_vault_contract.as_ref(),
+        koyo_vault_contract.as_ref(),
         &settlement_contract,
-        vault_contract.as_ref(),
         token_info_fetcher,
         network_name.to_string(),
         chain_id,
