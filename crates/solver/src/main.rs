@@ -240,6 +240,7 @@ async fn main() {
         native_token_contract.address(),
         args.balancer_sor_url,
         args.koyo_sor_url,
+        args.shared.koyo_sor_supported_chains,
         balancer_vault_contract.as_ref(),
         koyo_vault_contract.as_ref(),
         &settlement_contract,

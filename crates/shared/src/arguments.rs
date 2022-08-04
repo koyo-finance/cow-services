@@ -110,6 +110,9 @@ pub struct Arguments {
     #[clap(long, env, use_value_delimiter = true)]
     pub koyo_pool_deny_list: Vec<H256>,
 
+    #[clap(long, env, use_value_delimiter = true, default_value = "288")]
+    pub koyo_sor_supported_chains: Vec<u64>,
+
     /// Value of the authorization header for the solver competition post api.
     #[clap(long, env)]
     pub solver_competition_auth: Option<String>,
@@ -183,6 +186,11 @@ impl Display for Arguments {
         )?;
         writeln!(f, "koyo_factories: {:?}", self.koyo_factories)?;
         writeln!(f, "koyo_pool_deny_list: {:?}", self.koyo_pool_deny_list)?;
+        writeln!(
+            f,
+            "koyo_sor_supported_chains: {:?}",
+            self.koyo_sor_supported_chains
+        )?;
         writeln!(
             f,
             "solver_competition_auth: {}",

@@ -210,6 +210,7 @@ pub fn create(
     native_token: H160,
     balancer_sor_url: Url,
     koyo_sor_url: Url,
+    koyo_sor_supported_chains: Vec<u64>,
     balancer_vault_contract: Option<&BalancerV2Vault>,
     koyo_vault_contract: Option<&KoyoV2Vault>,
     settlement_contract: &GPv2Settlement,
@@ -295,6 +296,7 @@ pub fn create(
                             client.clone(),
                             koyo_sor_url.clone(),
                             chain_id,
+                            Some(&koyo_sor_supported_chains)
                         )?),
                         allowance_mananger.clone(),
                     ),

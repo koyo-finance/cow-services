@@ -20,8 +20,8 @@ pub struct DefaultKoyoSorApi {
 
 impl DefaultKoyoSorApi {
     /// Creates a new Koyo SOR API instance.
-    pub fn new(client: Client, base_url: impl IntoUrl, chain_id: u64) -> Result<Self> {
-        ensure!(chain_id == 288, "Koyo SOR API only supported on Boba",);
+    pub fn new(client: Client, base_url: impl IntoUrl, chain_id: u64, supported_chain_ids: Option<&Vec<u64>>) -> Result<Self> {
+        ensure!(supported_chain_ids.unwrap_or(&[288].to_vec()).contains(&chain_id), "Koyo SOR API is not supported on this chain",);
 
         let url = base_url.into_url()?.join(&chain_id.to_string())?;
         Ok(Self { client, url })

@@ -315,7 +315,7 @@ async fn main() {
         .map(|url| Arc::new(DefaultBalancerSorApi::new(client.clone(), url, chain_id).unwrap()));
     let koyo_sor_api = args
         .koyo_sor_url
-        .map(|url| Arc::new(DefaultKoyoSorApi::new(client.clone(), url, chain_id).unwrap()));
+        .map(|url| Arc::new(DefaultKoyoSorApi::new(client.clone(), url, chain_id, Some(&args.shared.koyo_sor_supported_chains)).unwrap()));
 
     let create_base_estimator =
         |estimator: PriceEstimatorType| -> (String, Arc<dyn PriceEstimating>) {
