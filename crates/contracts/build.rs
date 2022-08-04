@@ -81,13 +81,6 @@ fn main() {
                     deployment_information: Some(DeploymentInformation::BlockNumber(4648099)),
                 },
             )
-            .add_network(
-                "288",
-                Network {
-                    address: addr("0x2A4409Cc7d2AE7ca1E3D915337D1B6Ba2350D6a3"),
-                    deployment_information: Some(DeploymentInformation::BlockNumber(668337)),
-                },
-            )
     });
     generate_contract("BalancerV2WeightedPool");
     generate_contract_with_config("BalancerV2WeightedPoolFactory", |builder| {

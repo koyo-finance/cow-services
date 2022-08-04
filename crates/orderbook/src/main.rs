@@ -1,5 +1,5 @@
 use clap::Parser;
-use contracts::{BalancerV2Vault, GPv2Settlement, Koyo, VotingEscrow, WETH9};
+use contracts::{BalancerV2Vault, GPv2Settlement, Koyo, KoyoV2Vault, VotingEscrow, WETH9};
 use ethcontract::errors::DeployError;
 use model::{order::BUY_ETH_ADDRESS, DomainSeparator};
 use orderbook::{
@@ -19,13 +19,14 @@ use orderbook::{
 };
 use primitive_types::U256;
 use shared::{
+    account_balances::Web3BalanceFetcher,
     bad_token::{
         cache::CachingDetector,
         instrumented::InstrumentedBadTokenDetectorExt,
         list_based::{ListBasedDetector, UnknownTokenStrategy},
         token_owner_finder::{
-            blockscout::BlockscoutTokenOwnerFinder, BalancerVaultFinder, TokenOwnerFinding,
-            UniswapLikePairProviderFinder,
+            blockscout::BlockscoutTokenOwnerFinder, BalancerVaultFinder, KoyoVaultFinder,
+            TokenOwnerFinding, UniswapLikePairProviderFinder,
         },
         trace_call::TraceCallDetector,
     },
@@ -57,7 +58,7 @@ use shared::{
         BaselineSource, PoolAggregator,
     },
     token_info::{CachedTokenInfoFetcher, TokenInfoFetcher},
-    transport::{create_instrumented_transport, http::HttpTransport}, account_balances::Web3BalanceFetcher,
+    transport::{create_instrumented_transport, http::HttpTransport},
 };
 use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio::task;
@@ -120,13 +121,21 @@ async fn main() {
         .or_else(|| default_amount_to_estimate_prices_with(&network))
         .expect("No amount to estimate prices with set.");
 
-    let vault = match BalancerV2Vault::deployed(&web3).await {
+    let balancer_vault = match BalancerV2Vault::deployed(&web3).await {
         Ok(contract) => Some(contract),
         Err(DeployError::NotFound(_)) => {
             tracing::warn!("balancer contracts are not deployed on this network");
             None
         }
         Err(err) => panic!("failed to get balancer vault contract: {}", err),
+    };
+    let koyo_vault = match KoyoV2Vault::deployed(&web3).await {
+        Ok(contract) => Some(contract),
+        Err(DeployError::NotFound(_)) => {
+            tracing::warn!("koyo contracts are not deployed on this network");
+            None
+        }
+        Err(err) => panic!("failed to get koyo vault contract: {}", err),
     };
 
     verify_deployed_contract_constants(&settlement_contract, chain_id)
@@ -153,7 +162,7 @@ async fn main() {
     ));
     let balance_fetcher = Arc::new(Web3BalanceFetcher::new(
         web3.clone(),
-        vault.clone(),
+        koyo_vault.clone(),
         vault_relayer,
         settlement_contract.address(),
     ));
@@ -200,9 +209,14 @@ async fn main() {
             })
         })
         .collect();
-    if let Some(contract) = &vault {
+
+    if let Some(contract) = &balancer_vault {
         finders.push(Arc::new(BalancerVaultFinder(contract.clone())));
     }
+    if let Some(contract) = &koyo_vault {
+        finders.push(Arc::new(KoyoVaultFinder(contract.clone())));
+    }
+
     if args.enable_blockscout {
         if let Ok(finder) = BlockscoutTokenOwnerFinder::try_with_network(client.clone(), chain_id) {
             finders.push(Arc::new(finder));
@@ -313,9 +327,17 @@ async fn main() {
     let balancer_sor_api = args
         .balancer_sor_url
         .map(|url| Arc::new(DefaultBalancerSorApi::new(client.clone(), url, chain_id).unwrap()));
-    let koyo_sor_api = args
-        .koyo_sor_url
-        .map(|url| Arc::new(DefaultKoyoSorApi::new(client.clone(), url, chain_id, Some(&args.shared.koyo_sor_supported_chains)).unwrap()));
+    let koyo_sor_api = args.koyo_sor_url.map(|url| {
+        Arc::new(
+            DefaultKoyoSorApi::new(
+                client.clone(),
+                url,
+                chain_id,
+                Some(&args.shared.koyo_sor_supported_chains),
+            )
+            .unwrap(),
+        )
+    });
 
     let create_base_estimator =
         |estimator: PriceEstimatorType| -> (String, Arc<dyn PriceEstimating>) {

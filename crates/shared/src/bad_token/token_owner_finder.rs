@@ -32,9 +32,17 @@ impl TokenOwnerFinding for UniswapLikePairProviderFinder {
 
 /// The balancer vault contract contains all the balances of all pools.
 pub struct BalancerVaultFinder(pub contracts::BalancerV2Vault);
+pub struct KoyoVaultFinder(pub contracts::KoyoV2Vault);
 
 #[async_trait::async_trait]
 impl TokenOwnerFinding for BalancerVaultFinder {
+    async fn find_candidate_owners(&self, _: H160) -> Result<Vec<H160>> {
+        Ok(vec![self.0.address()])
+    }
+}
+
+#[async_trait::async_trait]
+impl TokenOwnerFinding for KoyoVaultFinder {
     async fn find_candidate_owners(&self, _: H160) -> Result<Vec<H160>> {
         Ok(vec![self.0.address()])
     }

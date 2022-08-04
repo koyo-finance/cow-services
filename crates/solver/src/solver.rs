@@ -296,7 +296,7 @@ pub fn create(
                             client.clone(),
                             koyo_sor_url.clone(),
                             chain_id,
-                            Some(&koyo_sor_supported_chains)
+                            Some(&koyo_sor_supported_chains),
                         )?),
                         allowance_mananger.clone(),
                     ),

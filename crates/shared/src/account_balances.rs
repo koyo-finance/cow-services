@@ -1,6 +1,6 @@
 use crate::{Web3, Web3Transport};
 use anyhow::{anyhow, Context, Result};
-use contracts::{BalancerV2Vault, ERC20};
+use contracts::{KoyoV2Vault, ERC20};
 use ethcontract::{batch::CallBatch, Account};
 use futures::{FutureExt, StreamExt};
 use model::order::{Order, SellTokenSource};
@@ -61,7 +61,7 @@ pub trait BalanceFetching: Send + Sync {
 
 pub struct Web3BalanceFetcher {
     web3: Web3,
-    vault: Option<BalancerV2Vault>,
+    vault: Option<KoyoV2Vault>,
     vault_relayer: H160,
     settlement_contract: H160,
 }
@@ -69,7 +69,7 @@ pub struct Web3BalanceFetcher {
 impl Web3BalanceFetcher {
     pub fn new(
         web3: Web3,
-        vault: Option<BalancerV2Vault>,
+        vault: Option<KoyoV2Vault>,
         vault_relayer: H160,
         settlement_contract: H160,
     ) -> Self {
@@ -158,7 +158,7 @@ fn erc20_balance_query(
 
 fn vault_external_balance_query(
     batch: &mut CallBatch<Web3Transport>,
-    vault: BalancerV2Vault,
+    vault: KoyoV2Vault,
     token: ERC20,
     owner: H160,
     relayer: H160,
