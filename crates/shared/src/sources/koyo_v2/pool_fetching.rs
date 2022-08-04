@@ -35,7 +35,7 @@ use contracts::{
     KoyoV2OracleWeightedPoolFactory, KoyoV2StablePoolFactory, KoyoV2Vault,
     KoyoV2WeightedPoolFactory,
 };
-use ethcontract::{Instance, H160, H256};
+use ethcontract::{dyns::DynInstance, Instance, H160, H256};
 use model::TokenPair;
 use reqwest::Client;
 use std::{
@@ -46,6 +46,7 @@ use std::{
 pub use crate::sources::balancer_v2::pools::weighted::TokenState as WeightedTokenState;
 pub use common::TokenState;
 pub use stable::AmplificationParameter;
+
 pub trait KoyoPoolEvaluating {
     fn properties(&self) -> CommonPoolState;
 }
@@ -143,7 +144,7 @@ pub struct KoyoPoolFetcher {
 }
 
 /// An enum containing all supported Koyo factory types.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ArgEnum)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, ArgEnum)]
 #[clap(rename_all = "verbatim")]
 pub enum KoyoFactoryKind {
     Weighted,
@@ -151,22 +152,46 @@ pub enum KoyoFactoryKind {
     Stable,
 }
 
+impl KoyoFactoryKind {
+    /// Returns a vector with supported factories for the specified chain ID.
+    pub fn for_chain(chain_id: u64) -> Vec<Self> {
+        match chain_id {
+            288 => Self::value_variants().to_owned(),
+            _ => Default::default(),
+        }
+    }
+}
+
 /// All koyo related contracts that we expect to exist.
 pub struct KoyoContracts {
     pub vault: KoyoV2Vault,
-    pub weighted: KoyoV2WeightedPoolFactory,
-    pub oracle: KoyoV2OracleWeightedPoolFactory,
-    pub stable: KoyoV2StablePoolFactory,
+    pub factories: HashMap<KoyoFactoryKind, DynInstance>,
 }
 
 impl KoyoContracts {
-    pub async fn new(web3: &Web3) -> Result<Self> {
-        Ok(Self {
-            vault: KoyoV2Vault::deployed(web3).await?,
-            weighted: KoyoV2WeightedPoolFactory::deployed(web3).await?,
-            oracle: KoyoV2OracleWeightedPoolFactory::deployed(web3).await?,
-            stable: KoyoV2StablePoolFactory::deployed(web3).await?,
-        })
+    pub async fn new(web3: &Web3, factory_kinds: Vec<KoyoFactoryKind>) -> Result<Self> {
+        let vault = KoyoV2Vault::deployed(web3).await?;
+
+        macro_rules! instance {
+            ($factory:ident) => {{
+                $factory::deployed(web3).await?.raw_instance().clone()
+            }};
+        }
+
+        let mut factories = HashMap::new();
+        for kind in factory_kinds {
+            let instance = match &kind {
+                KoyoFactoryKind::Weighted => instance!(KoyoV2WeightedPoolFactory),
+                KoyoFactoryKind::Oracle => {
+                    instance!(KoyoV2OracleWeightedPoolFactory)
+                }
+                KoyoFactoryKind::Stable => instance!(KoyoV2StablePoolFactory),
+            };
+
+            factories.insert(kind, instance);
+        }
+
+        Ok(Self { vault, factories })
     }
 }
 
@@ -175,7 +200,6 @@ impl KoyoPoolFetcher {
     pub async fn new(
         chain_id: u64,
         token_infos: Arc<dyn TokenInfoFetching>,
-        factories: &[KoyoFactoryKind],
         config: CacheConfig,
         block_stream: CurrentBlockStream,
         metrics: Arc<dyn KoyoPoolCacheMetrics>,
@@ -185,8 +209,7 @@ impl KoyoPoolFetcher {
     ) -> Result<Self> {
         let pool_initializer = KoyoSubgraphClient::for_chain(chain_id, client)?;
         let fetcher = Arc::new(Cache::new(
-            create_aggregate_pool_fetcher(pool_initializer, token_infos, factories, contracts)
-                .await?,
+            create_aggregate_pool_fetcher(pool_initializer, token_infos, contracts).await?,
             config,
             block_stream,
             metrics,
@@ -256,7 +279,6 @@ impl Maintaining for KoyoPoolFetcher {
 async fn create_aggregate_pool_fetcher(
     pool_initializer: impl PoolInitializing,
     token_infos: Arc<dyn TokenInfoFetching>,
-    factories: &[KoyoFactoryKind],
     contracts: &KoyoContracts,
 ) -> Result<Aggregate> {
     let registered_pools = pool_initializer.initialize_pools().await?;
@@ -264,27 +286,31 @@ async fn create_aggregate_pool_fetcher(
     let mut registered_pools_by_factory = registered_pools.group_by_factory();
 
     macro_rules! registry {
-        ($factory:expr) => {{
+        ($factory:ident, $instance:expr) => {{
             create_internal_pool_fetcher(
                 contracts.vault.clone(),
-                $factory.clone(),
+                $factory::with_deployment_info(
+                    &$instance.web3(),
+                    $instance.address(),
+                    $instance.deployment_information(),
+                ),
                 token_infos.clone(),
-                $factory.raw_instance(),
+                $instance,
                 registered_pools_by_factory
-                    .remove(&$factory.address())
+                    .remove(&$instance.address())
                     .unwrap_or_else(|| RegisteredPools::empty(fetched_block_number)),
             )?
         }};
     }
 
     let mut fetchers = Vec::new();
-    for factory in factories {
-        let registry = match factory {
-            KoyoFactoryKind::Weighted => registry!(&contracts.weighted),
+    for (kind, instance) in &contracts.factories {
+        let registry = match kind {
+            KoyoFactoryKind::Weighted => registry!(KoyoV2WeightedPoolFactory, instance),
             KoyoFactoryKind::Oracle => {
-                registry!(&contracts.oracle)
+                registry!(KoyoV2OracleWeightedPoolFactory, instance)
             }
-            KoyoFactoryKind::Stable => registry!(&contracts.stable),
+            KoyoFactoryKind::Stable => registry!(KoyoV2StablePoolFactory, instance),
         };
         fetchers.push(registry);
     }
@@ -342,174 +368,4 @@ fn pool_address_from_id(pool_id: H256) -> H160 {
     let mut address = H160::default();
     address.0.copy_from_slice(&pool_id.0[..20]);
     address
-}
-
-#[cfg(test)]
-mod tests {
-    use std::time::Duration;
-
-    use super::*;
-    use crate::{
-        sources::koyo_v2::{
-            graph_api::{KoyoSubgraphClient, PoolData, PoolType},
-            pool_init::EmptyPoolInitializer,
-        },
-        token_info::{CachedTokenInfoFetcher, TokenInfoFetcher},
-        transport,
-    };
-    use hex_literal::hex;
-
-    #[test]
-    fn can_extract_address_from_pool_id() {
-        assert_eq!(
-            pool_address_from_id(H256(hex!(
-                "36128d5436d2d70cab39c9af9cce146c38554ff0000200000000000000000009"
-            ))),
-            addr!("36128d5436d2d70cab39c9af9cce146c38554ff0"),
-        );
-    }
-
-    #[tokio::test]
-    #[ignore]
-    async fn balancer_pool_fetcher_print() {
-        let transport = transport::create_env_test_transport();
-        let web3 = Web3::new(transport);
-        let chain_id = web3.eth().chain_id().await.unwrap().as_u64();
-        let contracts = KoyoContracts::new(&web3).await.unwrap();
-        let token_info_fetcher =
-            Arc::new(CachedTokenInfoFetcher::new(Box::new(TokenInfoFetcher {
-                web3: web3.clone(),
-            })));
-        let block_stream =
-            crate::current_block::current_block_stream(web3.clone(), Duration::from_secs(1000))
-                .await
-                .unwrap();
-        let deny_list = vec![H256(hex_literal::hex!(
-            "072f14b85add63488ddad88f855fda4a99d6ac9b000200000000000000000027"
-        ))];
-        // let deny_list = vec![];
-        let pool_fetcher = KoyoPoolFetcher::new(
-            chain_id,
-            token_info_fetcher,
-            KoyoFactoryKind::value_variants(),
-            Default::default(),
-            block_stream,
-            Arc::new(NoopKoyoPoolCacheMetrics),
-            Default::default(),
-            &contracts,
-            deny_list,
-        )
-        .await
-        .unwrap();
-        pool_fetcher.run_maintenance().await.unwrap();
-        let pair = TokenPair::new(
-            addr!("C02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
-            addr!("C011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"),
-        )
-        .unwrap();
-        let fetched_pools_by_id = pool_fetcher
-            .fetch_pools([pair].into_iter().collect(), Block::Recent)
-            .await
-            .unwrap()
-            .into_iter()
-            .map(|pool| (pool.id, pool))
-            .collect::<HashMap<_, _>>();
-        dbg!(fetched_pools_by_id.len());
-    }
-
-    #[tokio::test]
-    #[ignore]
-    async fn balancer_fetched_pools_match_subgraph() {
-        let transport = transport::create_env_test_transport();
-        let web3 = Web3::new(transport);
-        let chain_id = web3.eth().chain_id().await.unwrap().as_u64();
-
-        println!("Indexing events for chain {}", chain_id);
-        crate::tracing::initialize_for_tests("warn,shared=debug");
-
-        let pool_initializer = EmptyPoolInitializer::for_chain(chain_id);
-        let token_infos = TokenInfoFetcher { web3: web3.clone() };
-        let contracts = KoyoContracts::new(&web3).await.unwrap();
-        let pool_fetcher = KoyoPoolFetcher {
-            fetcher: Arc::new(
-                create_aggregate_pool_fetcher(
-                    pool_initializer,
-                    Arc::new(token_infos),
-                    KoyoFactoryKind::value_variants(),
-                    &contracts,
-                )
-                .await
-                .unwrap(),
-            ),
-            pool_id_deny_list: Default::default(),
-        };
-
-        // index all the pools.
-        pool_fetcher.run_maintenance().await.unwrap();
-
-        // see what the subgraph says.
-        let client = KoyoSubgraphClient::for_chain(chain_id, Client::new()).unwrap();
-        let subgraph_pools = client.get_registered_pools().await.unwrap();
-        let subgraph_token_pairs = subgraph_pools_token_pairs(&subgraph_pools.pools).collect();
-
-        // fetch all pools and group them by ID.
-        let fetched_pools_by_id = pool_fetcher
-            .fetch_pools(
-                subgraph_token_pairs,
-                Block::Number(subgraph_pools.fetched_block_number),
-            )
-            .await
-            .unwrap()
-            .into_iter()
-            .map(|pool| (pool.id, pool))
-            .collect::<HashMap<_, _>>();
-
-        let mut unknown_pools = Vec::new();
-        for subgraph_pool in subgraph_pools.pools.iter().filter(|pool| pool.swap_enabled) {
-            tracing::info!(?subgraph_pool);
-
-            let fetched_pool = match fetched_pools_by_id.get(&subgraph_pool.id) {
-                Some(pool) => pool,
-                None => {
-                    unknown_pools.push(subgraph_pool.id);
-                    continue;
-                }
-            };
-            tracing::info!(?fetched_pool);
-
-            match &fetched_pool.kind {
-                PoolKind::Weighted(state) => {
-                    for token in &subgraph_pool.tokens {
-                        let token_state = &state.tokens[&token.address];
-                        assert_eq!(token_state.common.scaling_exponent, 18 - token.decimals);
-
-                        // Don't check weights for LBPs because they may be out
-                        // of date in the subgraph. See:
-                        // <https://github.com/balancer-labs/balancer-subgraph-v2/issues/173>
-                        if subgraph_pool.pool_type != PoolType::LiquidityBootstrapping {
-                            assert_eq!(token_state.weight, token.weight.unwrap());
-                        }
-                    }
-                }
-                PoolKind::Stable(state) => {
-                    for token in &subgraph_pool.tokens {
-                        let token_state = &state.tokens[&token.address];
-                        assert_eq!(token_state.scaling_exponent, 18 - token.decimals);
-                    }
-                }
-            };
-        }
-        tracing::warn!(?unknown_pools);
-    }
-
-    fn subgraph_pools_token_pairs(pools: &[PoolData]) -> impl Iterator<Item = TokenPair> + '_ {
-        pools.iter().flat_map(|pool| {
-            let len = pool.tokens.len();
-            (0..len)
-                .flat_map(move |a| (a + 1..len).map(move |b| (a, b)))
-                .filter_map(move |(a, b)| {
-                    TokenPair::new(pool.tokens[a].address, pool.tokens[b].address)
-                })
-        })
-    }
 }

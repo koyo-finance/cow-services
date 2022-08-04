@@ -1,5 +1,5 @@
 use anyhow::Context;
-use clap::{ArgEnum, Parser};
+use clap::Parser;
 use contracts::{BalancerV2Vault, IUniswapLikeRouter, KoyoV2Vault, WETH9};
 use num::rational::Ratio;
 use shared::{
@@ -169,15 +169,15 @@ async fn main() {
         };
     let (koyo_pool_maintainer, koyo_v2_liquidity) =
         if baseline_sources.contains(&BaselineSource::KoyoV2) {
-            let contracts = KoyoContracts::new(&web3).await.unwrap();
+            let factories = args
+                .shared
+                .koyo_factories
+                .unwrap_or_else(|| KoyoFactoryKind::for_chain(chain_id));
+            let contracts = KoyoContracts::new(&web3, factories).await.unwrap();
             let koyo_pool_fetcher = Arc::new(
                 KoyoPoolFetcher::new(
                     chain_id,
                     token_info_fetcher.clone(),
-                    args.shared
-                        .koyo_factories
-                        .as_deref()
-                        .unwrap_or_else(KoyoFactoryKind::value_variants),
                     cache_config,
                     current_block_stream.clone(),
                     metrics.clone(),
