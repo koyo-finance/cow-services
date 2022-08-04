@@ -4,12 +4,12 @@ pub use super::weighted::{PoolInfo, PoolState};
 use super::{common, FactoryIndexing};
 use crate::Web3CallBatch;
 use anyhow::Result;
-use contracts::{BalancerV2WeightedPool2TokensFactory, BalancerV2WeightedPoolFactory};
+use contracts::{KoyoV2OracleWeightedPoolFactory, KoyoV2WeightedPoolFactory};
 use ethcontract::BlockId;
 use futures::future::BoxFuture;
 
 #[async_trait::async_trait]
-impl FactoryIndexing for BalancerV2WeightedPool2TokensFactory {
+impl FactoryIndexing for KoyoV2OracleWeightedPoolFactory {
     type PoolInfo = PoolInfo;
     type PoolState = PoolState;
 
@@ -28,8 +28,6 @@ impl FactoryIndexing for BalancerV2WeightedPool2TokensFactory {
     }
 }
 
-fn as_weighted_factory(
-    factory: &BalancerV2WeightedPool2TokensFactory,
-) -> BalancerV2WeightedPoolFactory {
-    BalancerV2WeightedPoolFactory::at(&factory.raw_instance().web3(), factory.address())
+fn as_weighted_factory(factory: &KoyoV2OracleWeightedPoolFactory) -> KoyoV2WeightedPoolFactory {
+    KoyoV2WeightedPoolFactory::at(&factory.raw_instance().web3(), factory.address())
 }

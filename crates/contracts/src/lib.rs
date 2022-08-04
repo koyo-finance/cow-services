@@ -24,7 +24,6 @@ include!(concat!(env!("OUT_DIR"), "/BalancerV2BasePool.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2BasePoolFactory.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2StablePool.rs"));
 include!(concat!(env!("OUT_DIR"), "/BalancerV2StablePoolFactory.rs"));
-include!(concat!(env!("OUT_DIR"), "/BalancerV2StablePoolV2.rs"));
 include!(concat!(
     env!("OUT_DIR"),
     "/BalancerV2StablePoolFactoryV2.rs"

@@ -32,8 +32,8 @@ use crate::{
 use anyhow::Result;
 use clap::ArgEnum;
 use contracts::{
-    BalancerV2StablePoolFactoryV2, BalancerV2WeightedPool2TokensFactory,
-    BalancerV2WeightedPoolFactory, KoyoV2Vault,
+    KoyoV2OracleWeightedPoolFactory, KoyoV2StablePoolFactory, KoyoV2Vault,
+    KoyoV2WeightedPoolFactory,
 };
 use ethcontract::{Instance, H160, H256};
 use model::TokenPair;
@@ -154,18 +154,18 @@ pub enum KoyoFactoryKind {
 /// All koyo related contracts that we expect to exist.
 pub struct KoyoContracts {
     pub vault: KoyoV2Vault,
-    pub weighted: BalancerV2WeightedPoolFactory,
-    pub oracle: BalancerV2WeightedPool2TokensFactory,
-    pub stable: BalancerV2StablePoolFactoryV2,
+    pub weighted: KoyoV2WeightedPoolFactory,
+    pub oracle: KoyoV2OracleWeightedPoolFactory,
+    pub stable: KoyoV2StablePoolFactory,
 }
 
 impl KoyoContracts {
     pub async fn new(web3: &Web3) -> Result<Self> {
         Ok(Self {
             vault: KoyoV2Vault::deployed(web3).await?,
-            weighted: BalancerV2WeightedPoolFactory::deployed(web3).await?,
-            oracle: BalancerV2WeightedPool2TokensFactory::deployed(web3).await?,
-            stable: BalancerV2StablePoolFactoryV2::deployed(web3).await?,
+            weighted: KoyoV2WeightedPoolFactory::deployed(web3).await?,
+            oracle: KoyoV2OracleWeightedPoolFactory::deployed(web3).await?,
+            stable: KoyoV2StablePoolFactory::deployed(web3).await?,
         })
     }
 }

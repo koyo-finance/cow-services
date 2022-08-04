@@ -10,7 +10,7 @@
 pub mod common;
 pub mod stable;
 pub mod weighted;
-pub mod weighted_2token;
+pub mod weighted_oracle;
 
 use super::graph_api::PoolData;
 use crate::Web3CallBatch;
