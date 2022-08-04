@@ -136,7 +136,7 @@ impl SingleOrderSolving for KoyoSorSolver {
     }
 
     fn name(&self) -> &'static str {
-        "BalancerSOR"
+        "KoyoSOR"
     }
 }
 
