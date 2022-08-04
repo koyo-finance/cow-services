@@ -3,7 +3,6 @@ use contracts::{BalancerV2Vault, GPv2Settlement, Koyo, VotingEscrow, WETH9};
 use ethcontract::errors::DeployError;
 use model::{order::BUY_ETH_ADDRESS, DomainSeparator};
 use orderbook::{
-    account_balances::Web3BalanceFetcher,
     database::Postgres,
     event_updater::EventUpdater,
     fee_subsidy::{
@@ -15,7 +14,6 @@ use orderbook::{
     order_validation::{OrderValidator, SignatureConfiguration},
     orderbook::Orderbook,
     serve_api,
-    signature_validator::Web3SignatureValidator,
     solvable_orders::SolvableOrdersCache,
     verify_deployed_contract_constants,
 };
@@ -50,6 +48,7 @@ use shared::{
     },
     rate_limiter::RateLimiter,
     recent_block_cache::CacheConfig,
+    signature_validator::Web3SignatureValidator,
     sources::{
         self,
         balancer_v2::{pool_fetching::BalancerContracts, BalancerFactoryKind, BalancerPoolFetcher},
@@ -58,7 +57,7 @@ use shared::{
         BaselineSource, PoolAggregator,
     },
     token_info::{CachedTokenInfoFetcher, TokenInfoFetcher},
-    transport::{create_instrumented_transport, http::HttpTransport},
+    transport::{create_instrumented_transport, http::HttpTransport}, account_balances::Web3BalanceFetcher,
 };
 use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio::task;

@@ -81,6 +81,13 @@ fn main() {
                     deployment_information: Some(DeploymentInformation::BlockNumber(4648099)),
                 },
             )
+            .add_network(
+                "288",
+                Network {
+                    address: addr("0x2A4409Cc7d2AE7ca1E3D915337D1B6Ba2350D6a3"),
+                    deployment_information: Some(DeploymentInformation::BlockNumber(668337)),
+                },
+            )
     });
     generate_contract("BalancerV2WeightedPool");
     generate_contract_with_config("BalancerV2WeightedPoolFactory", |builder| {
@@ -193,13 +200,15 @@ fn main() {
             .add_network_str("288", "0xeC9c70b34C4CF4b91cC057D726b114Ef3C7A1749")
     });
     generate_contract_with_config("KoyoV2Vault", |builder| {
-        builder.contract_mod_override("koyo_v2_vault").add_network(
-            "288",
-            Network {
-                address: addr("0x2A4409Cc7d2AE7ca1E3D915337D1B6Ba2350D6a3"),
-                deployment_information: Some(DeploymentInformation::BlockNumber(668337)),
-            },
-        )
+        builder //
+            .contract_mod_override("koyo_v2_vault")
+            .add_network(
+                "288",
+                Network {
+                    address: addr("0x2A4409Cc7d2AE7ca1E3D915337D1B6Ba2350D6a3"),
+                    deployment_information: Some(DeploymentInformation::BlockNumber(668337)),
+                },
+            )
     });
     generate_contract_with_config("KoyoV2BasePool", |builder| {
         builder.contract_mod_override("koyo_v2_base_pool")
