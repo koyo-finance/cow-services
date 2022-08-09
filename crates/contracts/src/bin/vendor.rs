@@ -195,6 +195,14 @@ fn run() -> Result<()> {
         .github(
             "OolongSwapRouter02",
             "koyo-finance/external-abis/c3a794c13a3919b26e7b570f661edaf33eede93a/network/boba/oolongswap/OolongSwapRouter02.json"
+        )?
+        .github(
+            "GinFinanceFactory",
+            "koyo-finance/external-abis/0a9fb716d2ab1696cb25c2632f2606039ada57f5/network/boba/gin-finance/GinFinanceFactory.json"
+        )?
+        .github(
+            "GinFinanceRouter02",
+            "koyo-finance/external-abis/0a9fb716d2ab1696cb25c2632f2606039ada57f5/network/boba/gin-finance/GinFinanceRouter02.json"
         )?;
 
     Ok(())

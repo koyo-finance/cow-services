@@ -276,6 +276,13 @@ fn main() {
     generate_contract_with_config("OolongSwapRouter02", |builder| {
         builder.add_network_str("288", "0x17C83E2B96ACfb5190d63F5E46d93c107eC0b514")
     });
+
+    generate_contract_with_config("GinFinanceFactory", |builder| {
+        builder.add_network_str("288", "0x06350499760aa3ea20FEd2837321a84a92417f39")
+    });
+    generate_contract_with_config("GinFinanceRouter02", |builder| {
+        builder.add_network_str("288", "0x0f175392971a0a90f59e2C0B40F2d7bdC2f5B6c7")
+    });
 }
 
 fn generate_contract(name: &str) {

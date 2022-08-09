@@ -63,6 +63,9 @@ include!(concat!(env!("OUT_DIR"), "/UniswapV2Router02.rs"));
 include!(concat!(env!("OUT_DIR"), "/OolongSwapFactory.rs"));
 include!(concat!(env!("OUT_DIR"), "/OolongSwapRouter02.rs"));
 
+include!(concat!(env!("OUT_DIR"), "/GinFinanceFactory.rs"));
+include!(concat!(env!("OUT_DIR"), "/GinFinanceRouter02.rs"));
+
 #[cfg(test)]
 mod tests {
     use ethcontract::{

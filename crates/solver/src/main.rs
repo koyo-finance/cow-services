@@ -420,6 +420,10 @@ async fn build_amm_artifacts(
                 .await
                 .expect("couldn't load deployed OolongSwap router")
                 .address(),
+            BaselineSource::GinFinance => contracts::GinFinanceRouter02::deployed(&web3)
+                .await
+                .expect("couldn't load deployed Gin Finance router")
+                .address(),
             BaselineSource::KoyoV2 => continue,
             BaselineSource::BalancerV2 => continue,
         };

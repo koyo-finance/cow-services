@@ -3,6 +3,7 @@
 pub mod balancer_v2;
 pub mod koyo_v2;
 pub mod oolongswap;
+pub mod gin_finance;
 pub mod uniswap_v2;
 
 use self::uniswap_v2::{
@@ -22,13 +23,14 @@ use std::{
 pub enum BaselineSource {
     UniswapV2,
     OolongSwap,
+    GinFinance,
     KoyoV2,
     BalancerV2,
 }
 
 pub fn defaults_for_chain(chain_id: u64) -> Result<Vec<BaselineSource>> {
     Ok(match chain_id {
-        288 => vec![BaselineSource::KoyoV2, BaselineSource::OolongSwap],
+        288 => vec![BaselineSource::KoyoV2, BaselineSource::OolongSwap, BaselineSource::GinFinance],
         _ => bail!("unsupported chain {:#x}", chain_id),
     })
 }
@@ -44,6 +46,7 @@ pub async fn uniswap_like_liquidity_sources(
         let liquidity_source = match source {
             BaselineSource::UniswapV2 => uniswap_v2::get_liquidity_source(web3).await?,
             BaselineSource::OolongSwap => oolongswap::get_liquidity_source(web3).await?,
+            BaselineSource::GinFinance => gin_finance::get_liquidity_source(web3).await?,
             BaselineSource::KoyoV2 => continue,
             BaselineSource::BalancerV2 => continue,
         };
